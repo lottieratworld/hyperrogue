@@ -893,6 +893,19 @@ bool pcmove::after_escape() {
     #endif
     return false;
     }
+  else if(c2->monst == moMerchant) {
+    #if CAP_COMPLEX2
+    if(merchant::angry) return attack();
+    else if(vmsg(miWALL)) merchant::job_menu(c2);
+    #endif
+    return false;
+    }
+  else if(c2->wall == waMerchTraveller) {
+  	#if CAP_COMPLEX2
+  	if(vmsg(miWALL) && items[itJob])merchant::complete_job(c2);
+  	#endif
+  	return false;
+    }
   else if(c2->monst && (!isFriendly(c2) || c2->monst == moTameBomberbird || isMountable(c2->monst))
     && !(peace::on && !isMultitile(c2->monst) && !good_tortoise)) 
     return attack();

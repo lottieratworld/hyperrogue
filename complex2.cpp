@@ -1443,5 +1443,106 @@ EX namespace dice {
   int hook = addHook(hooks_clearmemory, 0, [] () { data.clear(); });
 EX }
 
+EX namespace merchant {
+  struct jobinfo {
+  	cell *path[201];
+  	int pathlen;
+  	cell *actualdest;
+  	int howfar;
+  	int turnlimit;
+  	jobinfo() { actualdest = NULL; }
+  	cell* destination() { return path[pathlen]; }
+  	cell *actual_dest() { return actualdest ? actualdest : destination(); }
+  	cell* start() { return path[0]; }
+    };
+    
+  vector<string> item_names = {
+    "Ice Diamonds", "Icewolf Pelts", "Spice", "Sand Worm Tails", "Elixirs of Life", "Delicious Slime", "Tasty Jelly"
+    };
+  
+  EX bool angry = false;
+  EX void anger() {
+  	angry = true;
+  	items[itJob] = 0;
+  	addMessage(XLAT("You threaten the merchant, angering all of them!"));
+    }
+
+  jobinfo curJob;
+
+  EX void start_job(cell *start, int joblength, int turnlimit) {
+  	jobinfo job;
+  	int creation_attempt = 0;
+  	job.pathlen = joblength;
+    job.turnlimit = turnlimit;
+    
+  	retry:
+  	
+  	auto p = generate_random_path_randomdir(start, joblength, false);
+  	for(int i=0; i<=joblength; i++) job.path[i] = p.path[i];
+    
+  	for(int i=1; i<=joblength; i++) {
+  		setdist(job.path[i], 7, job.path[i-1]);
+  		if(isEquidLand(job.path[i]->land)) {
+  			buildEquidistant(job.path[i]);
+  		  }
+  	  }
+
+  	setdist(job.path[joblength], 7, job.path[joblength-1]);
+  	cell *destination = job.path[joblength];
+
+  	for(int b=10; b>=5; b--) setdist(destination, b, job.path[joblength-1]);
+
+  	if(inmirror(destination) || (geometry == gNormal && celldistance(destination, start) < joblength/2)) {
+  		creation_attempt++;
+  		if(creation_attempt > 100) {
+  			start->monst = moNone;
+  			addMessage(XLAT("The merchant couldn't give you a job and left..."));
+  			return;
+  		  }
+  		goto retry;
+  	  }
+
+    destination->wall = waMerchTraveller;
+    destination->item = itNone;
+    destination->monst = moNone;
+    
+  	curJob = job;
+    }
+  
+  EX void complete_job(cell *traveller) {
+  	items[itMerchant] += items[itJob];
+  	items[itJob] = 0;
+  	traveller->wall = waNone;
+  	traveller->monst = moMerchTraveller;
+  	addMessage(XLAT("Success! You have been paid for your work"));
+    }
+  
+  EX void job_menu(cell *start) {
+    if(items[itJob]) {
+      addMessage(XLAT("Please complete your current job"));
+      return;
+      }
+  	pushScreen([start] () {
+  		gamescreen(1);
+  		dialog::addBreak(250);
+  		dialog::init(XLAT("Help Wanted!"), 0xFFFF00, 150, 100);
+  		dialog::addInfo("Deliver bags of Ice Diamonds");
+  		dialog::addBreak(75);
+      dialog::addItem(XLAT("$1 - 50 cells away, arrive by 250 turns"), '1');
+  		dialog::add_action([start] () { items[itJob] = 1; start_job(start, 5, 250);  popScreen(); });
+      dialog::addItem(XLAT("$3 - 100 cells away, arrive by 275 turns"), '2');
+  		dialog::add_action([start] () { items[itJob] = 3; start_job(start, 5, 275); popScreen(); });
+      dialog::addItem(XLAT("$5 - 200 cells away, arrive by 300 turns"), '3');
+  		dialog::add_action([start] () { items[itJob] = 5; start_job(start, 5, 300); popScreen(); });
+  		dialog::addItem(XLAT("Attack!"), 'a');
+  		dialog::add_action([] () { anger(); popScreen(); });
+      dialog::addItem(XLAT("Cancel"), 'n');
+  		dialog::add_action([] () { popScreen(); });
+      dialog::add_key_action(SDLK_RETURN, [] () { popScreen(); });
+      dialog::display();
+  	  });
+    }
+EX } 
+
 }
 #endif

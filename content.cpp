@@ -1729,6 +1729,28 @@ MONSTER('d', 0x901020, "Angry Die", moAngryDie, ZERO, RESERVED, moAnimatedDie,
   "You have made a die unhappy. Taste the revenge! This one won't forgive you, no matter what you do."
   )
 
+LAND(0xFFFFFF, "Merchant Center", laMerchant, 0, itMerchant, RESERVED,
+  "unfinished")
+  REQ(NUMBER(orbsUnlocked(), floor(lands_for_hell()/1.5), XLAT("Finished lands required: %1 (collect %2 treasure)\n", "4", its(R10))))
+
+ITEM('$', 0xFFFFFF, "Strange Coin", itMerchant, IC_TREASURE, ZERO, RESERVED, osNone,
+  "A very shiny and expensive looking coin merchants use as currency. "
+  "It's not clear where they come from or how they have so many... "
+  "What are they even made of?")
+
+MONSTER('M', 0xFFFF11, "Merchant", moMerchant, CF_FACE_UP | CF_NOGHOST | CF_GOK | CF_FRIENDLY | CF_FACING, RESERVED, moNone,
+  "unfinished")
+MONSTER('M', 0xFF1111, "Angry Merchant", moMerchantAngry, CF_FACE_UP | CF_STUNNABLE | CF_HP, RESERVED, moYeti,
+  "unfinished")
+MONSTER('T', 0x5511FF, "Traveller", moMerchTraveller, CF_FACE_UP | CF_NOGHOST | CF_GOK | CF_FRIENDLY | CF_FACING, RESERVED, moYeti,
+  "unfinished")
+WALL('T', 0x5511FF, "Traveller", waMerchTraveller, WF_WALL, RESERVED, 0, sgNone,
+  "unfinished")
+
+ITEM('$', 0xFFFF00, "Active Job", itJob, IC_NAI, ZERO, RESERVED, osNone,
+  "Payment you will receive in Strange Coins "
+  "after completing your current delivery job.")
+
 //shmupspecials
 MONSTER( '@', 0xC0C0C0, "Rogue", moPlayer, CF_FACE_UP | CF_PLAYER, RESERVED, moNone, "In the Shoot'em Up mode, you are armed with thrown Knives.")
 MONSTER( '*', 0xC0C0C0, "Knife", moBullet, ZERO | CF_BULLET, RESERVED, moNone, "A simple, but effective, missile, used by rogues.")
