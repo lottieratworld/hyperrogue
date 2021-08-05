@@ -392,4 +392,8 @@ EX bool isDie(eWall w) {
   return among(w, waRichDie, waHappyDie);
   }
 
+EX bool isMerchant(eMonster m) {
+  return among(m, moMerchant, moMerchantAngry);
+  }
+
 }

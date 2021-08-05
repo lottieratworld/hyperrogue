@@ -1733,21 +1733,20 @@ LAND(0xFFFFFF, "Merchant Center", laMerchant, 0, itMerchant, RESERVED,
   "unfinished")
   REQ(NUMBER(orbsUnlocked(), floor(lands_for_hell()/1.5), XLAT("Finished lands required: %1 (collect %2 treasure)\n", "4", its(R10))))
 
-ITEM('$', 0xFFFFFF, "Strange Coin", itMerchant, IC_TREASURE, ZERO, RESERVED, osNone,
+ITEM('$', 0x55BB11, "Strange Coin", itMerchant, IC_TREASURE, ZERO, RESERVED, osNone,
   "A very shiny and expensive looking coin merchants use as currency. "
   "It's not clear where they come from or how they have so many... "
   "What are they even made of?")
 
-MONSTER('M', 0xFFFF11, "Merchant", moMerchant, CF_FACE_UP | CF_NOGHOST | CF_GOK | CF_FRIENDLY | CF_FACING, RESERVED, moNone,
+MONSTER('@', 0x408040, "Merchant", moMerchant, CF_FACE_UP | CF_NOGHOST | CF_GOK | CF_FRIENDLY | CF_FACING, RESERVED, moNone, "unfinished")
+MONSTER('@', 0xE05010, "Angry Merchant", moMerchantAngry, CF_FACE_UP | CF_STUNNABLE | CF_HP, RESERVED, moYeti, "unfinished")
+  
+MONSTER('@', 0x50B010, "Traveller", moMerchTraveller, CF_FACE_UP | CF_NOGHOST | CF_GOK | CF_FRIENDLY | CF_FACING, RESERVED, moYeti,
   "unfinished")
-MONSTER('M', 0xFF1111, "Angry Merchant", moMerchantAngry, CF_FACE_UP | CF_STUNNABLE | CF_HP, RESERVED, moYeti,
-  "unfinished")
-MONSTER('T', 0x5511FF, "Traveller", moMerchTraveller, CF_FACE_UP | CF_NOGHOST | CF_GOK | CF_FRIENDLY | CF_FACING, RESERVED, moYeti,
-  "unfinished")
-WALL('T', 0x5511FF, "Traveller", waMerchTraveller, WF_WALL, RESERVED, 0, sgNone,
+WALL('@', 0x50B010, "Traveller", waMerchTraveller, WF_WALL, RESERVED, 0, sgNone,
   "unfinished")
 
-ITEM('$', 0xFFFF00, "Active Job", itJob, IC_NAI, ZERO, RESERVED, osNone,
+ITEM('$', 0xE05010, "Active Job", itJob, IC_NAI, ZERO, RESERVED, osNone,
   "Payment you will receive in Strange Coins "
   "after completing your current delivery job.")
 

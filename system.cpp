@@ -163,6 +163,7 @@ EX void initgame() {
   multi::cpid = 0;
   
   yendor::init(1);
+  merchant::init();
   
   if(safety && safetyseed) {
     shrand(safetyseed);

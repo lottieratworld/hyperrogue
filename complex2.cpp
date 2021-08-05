@@ -1444,21 +1444,44 @@ EX namespace dice {
 EX }
 
 EX namespace merchant {
+  #if HDR
   struct jobinfo {
   	cell *path[201];
   	int pathlen;
   	cell *actualdest;
   	int howfar;
   	int turnlimit;
-  	jobinfo() { actualdest = NULL; }
+  	jobinfo() { actualdest = NULL; pathlen = 0; }
   	cell* destination() { return path[pathlen]; }
   	cell *actual_dest() { return actualdest ? actualdest : destination(); }
   	cell* start() { return path[0]; }
     };
     
+  struct listing {
+    int reward;
+    int distance;
+    int length;
+    listing() {}
+    };
+
+  struct merchantinfo {
+    int type;
+    int item;
+    listing l1;
+    listing l2;
+    listing l3;
+    merchantinfo() {}
+    };
+  #endif
+  
+  EX jobinfo curJob;
+    
   vector<string> item_names = {
     "Ice Diamonds", "Icewolf Pelts", "Spice", "Sand Worm Tails", "Elixirs of Life", "Delicious Slime", "Tasty Jelly"
     };
+
+  //EX map<cell*, int> merchant_type;
+  map<cell*, merchantinfo> merchants;
   
   EX bool angry = false;
   EX void anger() {
@@ -1467,7 +1490,11 @@ EX namespace merchant {
   	addMessage(XLAT("You threaten the merchant, angering all of them!"));
     }
 
-  jobinfo curJob;
+  EX void init() {
+    angry = false;
+  	items[itJob] = 0;
+    merchants.clear();
+    }
 
   EX void start_job(cell *start, int joblength, int turnlimit) {
   	jobinfo job;
@@ -1522,18 +1549,20 @@ EX namespace merchant {
       addMessage(XLAT("Please complete your current job"));
       return;
       }
-  	pushScreen([start] () {
+    if(!merchants.count(start)) return;
+    merchantinfo m = merchants[start];
+  	pushScreen([start,m] () {
   		gamescreen(1);
   		dialog::addBreak(250);
   		dialog::init(XLAT("Help Wanted!"), 0xFFFF00, 150, 100);
-  		dialog::addInfo("Deliver bags of Ice Diamonds");
+  		dialog::addInfo("Deliver " + item_names[m.item]);
   		dialog::addBreak(75);
-      dialog::addItem(XLAT("$1 - 50 cells away, arrive by 250 turns"), '1');
-  		dialog::add_action([start] () { items[itJob] = 1; start_job(start, 5, 250);  popScreen(); });
-      dialog::addItem(XLAT("$3 - 100 cells away, arrive by 275 turns"), '2');
-  		dialog::add_action([start] () { items[itJob] = 3; start_job(start, 5, 275); popScreen(); });
-      dialog::addItem(XLAT("$5 - 200 cells away, arrive by 300 turns"), '3');
-  		dialog::add_action([start] () { items[itJob] = 5; start_job(start, 5, 300); popScreen(); });
+      dialog::addItem(XLAT("$%1 - %2 cells away, arrive in %3 turns",its(m.l1.reward),its(m.l1.distance),its(m.l1.length)), '1');
+  		dialog::add_action([start,m] () { items[itJob] = m.l1.reward; start_job(start, m.l1.distance, m.l1.length); popScreen(); });
+      dialog::addItem(XLAT("$%1 - %2 cells away, arrive in %3 turns",its(m.l2.reward),its(m.l2.distance),its(m.l2.length)), '2');
+  		dialog::add_action([start,m] () { items[itJob] = m.l2.reward; start_job(start, m.l2.distance, m.l2.length); popScreen(); });
+      dialog::addItem(XLAT("$%1 - %2 cells away, arrive in %3 turns",its(m.l3.reward),its(m.l3.distance),its(m.l3.length)), '3');
+  		dialog::add_action([start,m] () { items[itJob] = m.l3.reward; start_job(start, m.l3.distance, m.l3.length); popScreen(); });
   		dialog::addItem(XLAT("Attack!"), 'a');
   		dialog::add_action([] () { anger(); popScreen(); });
       dialog::addItem(XLAT("Cancel"), 'n');
@@ -1541,6 +1570,46 @@ EX namespace merchant {
       dialog::add_key_action(SDLK_RETURN, [] () { popScreen(); });
       dialog::display();
   	  });
+    }
+
+  EX void place_merchant(cell *c) {
+    c->monst = angry ? moMerchantAngry : moMerchant;
+    c->hitpoints = 5;
+    //merchant_type[c] = hrand(4);
+    merchantinfo m;
+    m.type = hrand(4);
+    m.item = hrand(item_names.size());
+
+    m.l1.distance = 30 + hrand(60);
+    m.l1.length = m.l1.distance + 175 + hrand(75);
+    m.l1.reward = 2;
+
+    m.l2.distance = 90 + hrand(60);
+    m.l2.length = m.l2.distance + 100 + hrand(75);
+    m.l2.reward = 5;
+
+    m.l3.distance = 150 + hrand(60);
+    m.l3.length = m.l3.distance + 50 + hrand(75);
+    m.l3.reward = 8;
+    
+    merchants[c] = m;
+    }
+    
+  EX void move_merchant(cell *c1, cell *c2) {
+    LATE ( move_merchant(c1, c2); )
+    if(merchants.count(c1)) {
+      merchants[c2] = merchants[c1];
+      merchants.erase(c1);
+      }
+    }
+  EX void kill_merchant(cell *c) {
+    if(merchants.count(c)) 
+      merchants.erase(c);
+    }
+  EX int merchant_type(cell *c) {
+    if(merchants.count(c)) 
+      return merchants[c].type;
+    return 0;
     }
 EX } 
 

@@ -1256,6 +1256,9 @@ EX namespace mapeditor {
         if(isDie(c->monst)) {
           if(!dice::generate_random(c)) c->monst = moNone;
           }
+        if(isMerchant(c->monst)) {
+          merchant::place_merchant(c);
+          }
         break;
         }
       case 1: {

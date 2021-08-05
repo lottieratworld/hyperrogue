@@ -90,6 +90,8 @@ EX void moveEffect(const movei& mi, eMonster m) {
   
   #if CAP_COMPLEX2
   if(cf && m == moKnight) camelot::move_knight(cf, ct);
+  
+  if(cf && isMerchant(m)) merchant::move_merchant(cf, ct);
   #endif
   
   if(cf && m == moTortoise) {

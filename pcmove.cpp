@@ -899,8 +899,7 @@ bool pcmove::after_escape() {
     }
   else if(c2->monst == moMerchant) {
     #if CAP_COMPLEX2
-    if(merchant::angry) return attack();
-    else if(vmsg(miWALL)) merchant::job_menu(c2);
+    if(vmsg(miWALL)) merchant::job_menu(c2);
     #endif
     return false;
     }

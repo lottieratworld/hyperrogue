@@ -824,6 +824,12 @@ EX void killMonster(cell *c, eMonster who, flagtype deathflags IS(0)) {
     pcount = 0;
     }
 
+  if(isMerchant(m)) {
+    #if CAP_COMPLEX2
+    merchant::kill_merchant(c);
+    #endif
+    }
+
   drawParticles(c, minf[m].color, pcount);
   if(fallanim) {
     fallingMonsterAnimation(c, m);

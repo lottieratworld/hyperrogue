@@ -2276,6 +2276,28 @@ EX bool drawMonsterType(eMonster m, cell *where, const shiftmatrix& V1, color_t 
         queuepoly(V, cgi.shDodeca, darkena(col, 0, 0xFF));
       return true;
       }
+
+    case moMerchant: case moMerchantAngry: {
+      const transmatrix VBS = otherbodyparts(V, darkena(0x408040, 1, 0xFF), m, footphase);
+      int merchtype = 0;
+      if(where) merchtype = merchant::merchant_type(where);
+      ShadowV(V, cgi.shPBody);
+      queuepoly(VBODY * VBS, merchtype&1 ? cgi.shFemaleBody : cgi.shPBody, darkena(0x605020, 0, 0xFF));
+      if(!peace::on && m == moMerchantAngry) queuepoly(VBODY * VBS, cgi.shPSword, darkena(0xD0D0D0, 0, 0xFF));
+      queuepoly(VBODY1 * VBS, cgi.shKnightCloak, darkena(0x408040, 0, 0xFF));
+      if(merchtype >= 2) {
+        queuepoly(VHEAD, cgi.shVikingHelmet, darkena(0x408040, 1, 0XFF));
+        }
+      else {
+        queuepoly(VHEAD1, cgi.shWestHat1, darkena(0x408040, 2, 0XFF));
+        queuepoly(VHEAD2, cgi.shWestHat2, darkena(0x408040, 1, 0XFF));
+        }
+      //queuepoly(VHEAD1, merchtype&1 ? cgi.shFemaleHair : cgi.shPHead, darkena(0x404040, 1, 0XFF));
+
+      queuepoly(VHEAD, cgi.shPFace, darkena(0xD0A060, 0, 0xFF));
+      humanoid_eyes(V, 0x000000FF);
+      return true;
+      }
     #endif
       
     default: ;    
@@ -4484,6 +4506,37 @@ EX void drawMarkers() {
           queuestr(H, vid.fsize, its(cd), 0x10101 * int(128 - 100 * sintick(150)));
           #endif
           addauraspecial(H, iinf[itOrbYendor].color, 0);
+          }
+        }
+      }
+    if(1) {
+      using namespace merchant;
+      if(items[itJob] > 0) {
+        cell *destcell = NULL;
+        int i;
+        for(i=0; i<=curJob.pathlen; i++)
+          if(curJob.path[i]->cpdist <= get_sightrange_ambush()) {
+            destcell = curJob.path[i];
+            }
+        if(destcell) {
+          for(; i<=curJob.pathlen; i++) {
+            cell *c = curJob.path[i];
+            if(inscreenrange(c)) destcell = c;
+            }
+          shiftpoint H = tC0(ggmatrix(destcell));
+          #if CAP_QUEUE
+          queuestr(H, 2*vid.fsize, "X", 0x10101 * int(128 + 100 * sintick(150)));
+          int cd = celldistance(curJob.destination(), cwt.at);
+          if(cd == DISTANCE_UNKNOWN) for(int i2 = 0; i2<=curJob.pathlen; i2++) {
+            int cd2 = celldistance(cwt.at, curJob.path[i2]);
+            if(cd2 != DISTANCE_UNKNOWN) {
+              cd = cd2 + (YDIST-1-i2);
+              println(hlog, "i2 = ", i2, " cd = ", celldistance(cwt.at, destcell));
+              }
+            }
+          queuestr(H, vid.fsize, its(cd) + " (" + its(curJob.turnlimit) + ")", 0x10101 * int(128 - 100 * sintick(150)));
+          #endif
+          addauraspecial(H, minf[moMerchTraveller].color, 0);
           }
         }
       }
