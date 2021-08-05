@@ -569,6 +569,10 @@ void apply_chaos() {
   if(!items[itOrbChaos] || chaos_forbidden(ca) || chaos_forbidden(cb)) return;
   if(ca && is_paired(ca->monst)) killMonster(ca, moPlayer);
   if(cb && is_paired(cb->monst)) killMonster(cb, moPlayer);
+  destroyTrapsOn(ca);
+  destroyTrapsOn(cb);
+  if (ca->wall == waStone) destroyTrapsAround(ca);
+  if (cb->wall == waStone) destroyTrapsAround(cb);
   changes.ccell(ca);
   changes.ccell(cb);
   gcell coa = *ca;
@@ -901,13 +905,12 @@ bool pcmove::after_escape() {
     return false;
     }
   else if(c2->wall == waMerchTraveller) {
-  	#if CAP_COMPLEX2
-  	if(vmsg(miWALL) && items[itJob])merchant::complete_job(c2);
-  	#endif
-  	return false;
+    #if CAP_COMPLEX2
+    if(vmsg(miWALL) && items[itJob]) merchant::complete_job(c2);
+    #endif
+    return false;
     }
-  else if(c2->monst && (!isFriendly(c2) || c2->monst == moTameBomberbird || isMountable(c2->monst))
-    && !(peace::on && !isMultitile(c2->monst) && !good_tortoise)) 
+  else if(c2->monst && (!isFriendly(c2) || c2->monst == moTameBomberbird || isMountable(c2->monst)) && !(peace::on && !good_tortoise))
     return attack();
   else if(!passable(c2, cwt.at, P_USEBOAT | P_ISPLAYER | P_MIRROR | P_MONSTER)) {
     tell_why_impassable();
@@ -938,7 +941,7 @@ bool pcmove::move_if_okay() {
       return false;
     }
 
-  if(switchplace_prevent(cwt.at, c2, checkonly))
+  if(switchplace_prevent(cwt.at, c2, *this))
     return false;
   if(!checkonly && warningprotection_hit(do_we_stab_a_friend(mi, moPlayer)))
     return false;
@@ -959,7 +962,7 @@ void pcmove::tell_why_impassable() {
     if(vmsg(miRESTRICTED))
       blowaway_message(c2);
     }
-  else if(isAlch(c2)) {
+  else if(anti_alchemy(c2, cwt.at)) {
     if(vmsg(miRESTRICTED))
       addMessage(XLAT("Wrong color!"));
     }
