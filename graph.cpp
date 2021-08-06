@@ -827,7 +827,7 @@ EX bool drawItemType(eItem it, cell *c, const shiftmatrix& V, color_t icol, int 
     it == itFrog ? &cgi.shDisk :
     it == itHunting ? &cgi.shTriangle :
     (it == itDodeca || it == itDice) ? &cgi.shDodeca :
-    xch == '*' ? &cgi.shGem[ct6] : 
+    (xch == '*' || it == itMerchant) ? &cgi.shGem[ct6] :
     xch == '(' ? &cgi.shKnife : 
     it == itShard ? &cgi.shMFloor.b[0] :
     it == itTreat ? &cgi.shTreat :
@@ -995,6 +995,17 @@ EX bool drawItemType(eItem it, cell *c, const shiftmatrix& V, color_t icol, int 
         queuepoly(V2 * cpush(2, 1e-3), cgi.shBook, 0x805020FF);
       else
         queuepoly(V2, cgi.shBook, 0x805020FF);
+      }
+
+    if(it == itMerchant) {
+      ld h = cgi.human_height;
+      if(GDIM == 3) {
+        queuepoly(V2 * cpush(2, 0.025) * euscale3(1.5,1.5,0.05), cgi.shDisk, 0xFFC301FF);
+        }
+      else {
+        queuepoly(V2 * (ct6 > 0 ? euscale(1.5,1.5) : euscale(1.2,1.2)), cgi.shDisk, 0xFFC301FF);
+        }
+      icol = 0xAEC1C3;
       }
     
     PPR pr = PPR::ITEM;
