@@ -465,7 +465,7 @@ EX int moveval(cell *c1, cell *c2, int d, flagtype mf) {
   
   if(wantsToStay(m)) return 750;
   
-  if((m == moRatling || m == moRatlingAvenger) && lastmovetype == lmSkip && !items[itFatigue]) return 650;
+  if(isRatling(m) && lastmovetype == lmSkip && !items[itFatigue]) return 650;
 
   if(m == moLancer) { 
     bool lancerok = true;
@@ -1955,6 +1955,15 @@ EX void specialMoves() {
           c->stuntime = 1;
           }
         }
+      }
+
+    else if(m == moRatlingBowman && lastmovetype == lmSkip && !peace::on) {
+      for(cell *c1: bow_targets(c))
+        if(canAttack(c, moRatlingBowman, c1, c1->monst, AF_GETPLAYER | AF_ONLY_FBUG | AF_GUN)) {
+          attackMonster(c1, AF_GETPLAYER | AF_ONLY_FBUG | AF_GUN, moRatlingBowman);
+          c->stuntime = 1;
+          break;
+          }
       }
     }
   }

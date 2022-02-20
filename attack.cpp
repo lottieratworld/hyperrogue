@@ -1129,6 +1129,21 @@ EX vector<cell*> gun_targets(cell *c) {
     }
   return cl.lst;
   }
+  
+EX vector<cell*> bow_targets(cell *c) {
+  manual_celllister cl;
+  vector<int> dists;
+  cl.add(c); dists.push_back(0);
+  int firerange = (sphere || getDistLimit() < 5) ? 1 : 3;
+  for(int i=0; i<isize(dists); i++) {
+    cell *c1 = cl.lst[i];
+    if(dists[i] <= firerange)
+    forCellEx(c2, c1)
+      if(passable(c2, c1, P_BULLET | P_FLYING | P_MONSTER | P_LEADER | P_CHAIN))
+        if(cl.add(c2)) dists.push_back(dists[i] + 1);
+    }
+  return cl.lst;
+  }
 
 EX void fallMonster(cell *c, flagtype flags IS(0)) {
   attackMonster(c, flags, moNone);

@@ -488,7 +488,7 @@ EX void wandering() {
         continue;
         }
       if(c->land == laWarpSea && avengers && canReachPlayer(c, moPirate)) {
-        c->monst = moRatlingAvenger;
+        c->monst = hrand(100) < 10 ? moRatlingBowman : moRatlingAvenger;
         c->wall = waBoat;
         avengers--;
         if(cheater) printf("avenger comes\n");

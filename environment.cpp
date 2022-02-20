@@ -44,6 +44,7 @@ namespace hr {
 #define HF_WESTWALL   Flag(31)
 #define HF_JUMP       Flag(32)
 #define HF_DICE       Flag(33)
+#define HF_BOW        Flag(34)
 #endif
 
 EX flagtype havewhat, hadwhat;
@@ -442,6 +443,9 @@ EX void bfs() {
           if(isHaunted(c2->land) && 
             c2->monst != moGhost && c2->monst != moZombie && c2->monst != moNecromancer)
             fail_survivalist();
+          if(c2->monst == moRatlingBowman) {
+            havewhat |= HF_BOW;
+            }
           if(c2->monst == moHexSnake || c2->monst == moHexSnakeTail) {
             havewhat |= HF_HEX;
             if(c2->mondir != NODIR)

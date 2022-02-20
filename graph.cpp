@@ -673,7 +673,7 @@ transmatrix otherbodyparts(const shiftmatrix& V, color_t col, eMonster who, doub
     queuepoly(Tleft, cgi.shSkeletalFoot, col);
     return spin(rightfoot * wobble);
     }
-  else if(isTroll(who) || who == moMonkey || who == moYeti || who == moRatling || who == moRatlingAvenger || who == moGoblin) {
+  else if(isTroll(who) || who == moMonkey || who == moYeti || who == moRatling || who == moRatlingAvenger || who == moRatlingBowman || who == moGoblin) {
     queuepoly(Tright, cgi.shYetiFoot, col);
     queuepoly(Tleft, cgi.shYetiFoot, col);
     }
@@ -2028,11 +2028,15 @@ EX bool drawMonsterType(eMonster m, cell *where, const shiftmatrix& V1, color_t 
       return true;
       }
 
-    case moRatling: case moRatlingAvenger: {
+    case moRatling: case moRatlingAvenger: case moRatlingBowman: {
       const transmatrix VBS = otherbodyparts(V, darkena(col, 0, 0xFF), m, footphase);
       ShadowV(V, cgi.shYeti);
       queuepoly(VLEG, cgi.shRatTail, darkena(col, 0, 0xFF));
       queuepoly(VBODY * VBS, cgi.shYeti, darkena(col, 1, 0xFF));
+      
+      if(!peace::on && m == moRatlingBowman) {
+        queuepoly(VBODY * VBS, cgi.shBow, darkena(col, 0, 0xFF));
+        }
   
       float t = sintick(1000, where ? where->cpdist*M_PI : 0);
       int eyecol = t > 0.92 ? 0xFF0000 : 0;
@@ -2043,6 +2047,7 @@ EX bool drawMonsterType(eMonster m, cell *where, const shiftmatrix& V1, color_t 
         queuepoly(VHEAD, cgi.shWolf2, darkena(eyecol, 0, 0xFF));
         queuepoly(VHEAD, cgi.shWolf3, darkena(0x202020, 0, 0xFF));
         if(m == moRatlingAvenger) queuepoly(VHEAD1, cgi.shRatCape1, 0x303030FF);
+        if(m == moRatlingBowman) queuepoly(VHEAD1, cgi.shRatCape1, 0x364800FF);
         }
 #if MAXMDIM >= 4
       else {
@@ -2058,11 +2063,11 @@ EX bool drawMonsterType(eMonster m, cell *where, const shiftmatrix& V1, color_t 
         queuepoly(V1, cgi.shRatEye2, darkena(eyecol, 0, 0xFF));
         queuepoly(V1, cgi.shRatEye3, darkena(0x202020, 0, 0xFF));
         if(m == moRatlingAvenger) queuepoly(V1, cgi.shRatCape1, 0x303030FF);
+        if(m == moRatlingBowman) queuepoly(V1, cgi.shRatCape1, 0x364800FF);
         }
 #endif      
-      if(m == moRatlingAvenger) {
-        queuepoly(VBODY1 * VBS, cgi.shRatCape2, 0x484848FF);
-        }
+      if(m == moRatlingAvenger) queuepoly(VBODY1 * VBS, cgi.shRatCape2, 0x484848FF);
+      if(m == moRatlingBowman) queuepoly(VBODY1 * VBS, cgi.shRatCape2, 0x5A7800FF);
       return true;
       }
 

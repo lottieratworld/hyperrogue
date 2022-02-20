@@ -1270,7 +1270,12 @@ bool pcmove::stay() {
     items[itFatigue] = 0;
 
   if(monstersnear_add_pmi(mi)) {
-    if(vmsg(miTHREAT)) wouldkill("%The1 would get you!");
+    if(vmsg(miTHREAT)) {
+      if(who_kills_me == moRatlingBowman)
+        wouldkill("%The1 would shoot you if you stayed there!");
+      else
+        wouldkill("%The1 would get you!");
+      }
     return false;
     }
   if(checkonly) return true;

@@ -129,6 +129,13 @@ EX bool monstersnear(cell *c, eMonster who) {
         res++; who_kills_me = moOutlaw;
         }
     }
+  
+  if(havewhat&HF_BOW && lastmovetype == lmSkip) {
+    for(cell *c1: bow_targets(c)) 
+      if(c1->monst == moRatlingBowman && !c1->stuntime) {
+        res++; who_kills_me = moRatlingBowman;
+        }
+    }
 
   for(int t=0; t<c->type; t++) {
     cell *c2 = c->move(t);

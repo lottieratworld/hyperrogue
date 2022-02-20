@@ -1332,7 +1332,7 @@ LAND( 0x764e7c*2, "Rose Garden", laRose, ZERO, itRose, RESERVED, roselanddesc)
   REQ( GOLD(R90) )
 
 LAND( 0xFFD580, "Warped Coast", laWarpCoast, ZERO | LF_WARPED | LF_COASTAL, itCoral, RESERVED, warplanddesc)
-  NATIVE(m == moRatling ? 2 : m == moRatlingAvenger ? 1 : 0)
+  NATIVE(m == moRatling ? 2 : (m == moRatlingAvenger || m == moRatlingBowman) ? 1 : 0)
   REQAS(laOcean,)
 
 LAND( 0xFFD580, "Warped Sea", laWarpSea, ZERO | LF_WARPED | LF_SEA | LF_COASTAL, itCoral, RESERVED, warplanddesc)
@@ -1727,6 +1727,12 @@ MONSTER('d', 0x603010, "Animated Die", moAnimatedDie, ZERO, RESERVED, moAnimated
 
 MONSTER('d', 0x901020, "Angry Die", moAngryDie, ZERO, RESERVED, moAnimatedDie, 
   "You have made a die unhappy. Taste the revenge! This one won't forgive you, no matter what you do."
+  )
+
+MONSTER( 'R', 0x806040, "Ratling Hunter", moRatlingBowman, CF_FACE_UP | CF_LEADER | CF_RATLING, RESERVED, moPirate, 
+  "So, you have killed a Ratling on the unwarped sea? You will be punished for this! "
+  "This one can shoot you from a distance with their bow. Luckily their aim isn't very good, "
+  "as long as you keep moving or attacking they can't hit you."
   )
 
 //shmupspecials
