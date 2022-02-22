@@ -342,8 +342,8 @@ EX eLand pickluck(eLand l1, eLand l2) {
 
 EX eLand getNewSealand(eLand old) {
   while(true) {
-    eLand p = pick(laOcean, pick(laCaribbean, laLivefjord, laWarpSea, laKraken, laDocks));
-    if(p == laKraken && !landUnlocked(p)) continue;
+    eLand p = pick(laOcean, pick(laCaribbean, laLivefjord, laWarpSea, laKraken, laDocks, laShipwreck));
+    if(among(p, laKraken, laShipwreck) && !landUnlocked(p)) continue;
     if(p == laKraken && peace::on) continue;
     if(incompatible(old, p)) continue;
     if(p == old) continue;
@@ -354,7 +354,7 @@ EX eLand getNewSealand(eLand old) {
 
 EX bool createOnSea(eLand old) {
   return
-    old == laWarpSea || old == laCaribbean || old == laKraken ||
+    old == laWarpSea || old == laCaribbean || old == laKraken || old == laShipwreck ||
     (old == laLivefjord && hrand(2)) || 
     (old == laDocks && hrand(2)) ||
     (old == laOcean && (ls::any_chaos() ? hrand(2) : !generatingEquidistant));
@@ -575,7 +575,7 @@ EX vector<eLand> land_over = {
   laIce, laCaves, laDesert, laHunting, laMotion, laJungle, laAlchemist, 
   laCrossroads, 
   laMirror, laMirrorOld, laMinefield, laPalace, laPrincessQuest, laZebra, laSwitch, laReptile, laWet,
-  laOcean, laDocks, laWarpCoast, laLivefjord, laKraken, laCaribbean, laBrownian, laWhirlpool, laRlyeh, laTemple,
+  laOcean, laDocks, laWarpCoast, laLivefjord, laKraken, laCaribbean, laBrownian, laWhirlpool, laShipwreck, laRlyeh, laTemple,
   laIvoryTower, laEndorian, laWestWall, laDungeon, laMountain, 
   laCrossroads2, 
   laDryForest, laWineyard, laDeadCaves, laGraveyard, laHaunted, laHive, 

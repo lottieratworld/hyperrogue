@@ -620,6 +620,7 @@ EX int pickMoveDirection(cell *c, flagtype mf) {
     cell *c2 = c->move(d);
     int val = moveval(c, c2, d, mf);
     // printf("[%d] %p: val=%5d pass=%d\n", d, c2, val, passable(c2,c,0));
+    printf("[%d] %p: val=%5d pass=%d\n", d, c2, val, passable_for(c->monst, c2, c, P_MONSTER));
     if(val > bestval) global_posdir.clear(), bestval = val;
     if(val == bestval) global_posdir.push_back(d);
     }
@@ -806,6 +807,7 @@ EX void moveWorm(cell *c) {
   
   if(c->monst == moWormwait) { c->monst = moWorm; return; }
   else if(c->monst == moTentaclewait) { c->monst = moTentacle; return; }
+  else if(c->monst == moEelWait) { c->monst = moEel; return; }
   else if(c->monst == moTentacleEscaping) {    
     // explodeAround(c);
     forCellEx(c2, c)
@@ -831,10 +833,11 @@ EX void moveWorm(cell *c) {
     if(c->mondir != NODIR) c->move(c->mondir)->monst = moTentacleEscaping;
     return;
     }
-  else if(c->monst != moWorm && c->monst != moTentacle) return;
+  else if(c->monst != moWorm && c->monst != moTentacle && c->monst != moEel) return;
 
   eMonster m = c->monst;
   int id = m - moWorm;
+  int iseel = m == moEel;
   
   int mf = MF_PATHDIST | AF_EAT;
   
@@ -853,7 +856,11 @@ EX void moveWorm(cell *c) {
   
   if(dir == -1) {
     int spices = 0;
-    if(id) {
+    if(iseel) {
+      kills[moEel]++;
+      spices = 3;
+      }
+    else if(id) {
       addMessage(XLAT("Cthulhu withdraws his tentacle!"));
       kills[moTentacle]++;
       c->monst = moTentacleEscaping;
@@ -865,16 +872,26 @@ EX void moveWorm(cell *c) {
       }
     eItem loc = treasureType(c->land);
     bool spiceSeen = false;
-    while(c->monst == moWorm || c->monst == moWormtail || c->monst == moTentacle || c->monst == moTentacletail) {
+    while(c->monst == moWorm || c->monst == moWormtail || c->monst == moTentacle || c->monst == moTentacletail || c->monst == moEel || c->monst == moEelWait) {
       // if(!id) 
       explodeAround(c);
       drawParticles(c, minf[c->monst].color, 16);
-      if(spices > 0 && c->land == laDesert) {
-        if(notDippingForExtra(itSpice, loc)) {
-          c->item = itSpice;
-          if(c->cpdist <= 6) spiceSeen = true;
+      if(spices > 0) {
+        if(iseel && c->land == laShipwreck) {
+          if(notDippingForExtra(itShipwreck, loc)) {
+            c->item = itShipwreck;
+            if(c->wall == waSea) {c->wall = waEelGuts; c->wparam = 10;}
+            if(c->cpdist <= 6) spiceSeen = true;
+            }
+          spices--;
           }
-        spices--;
+        else if(c->land == laDesert) {
+          if(notDippingForExtra(itSpice, loc)) {
+            c->item = itSpice;
+            if(c->cpdist <= 6) spiceSeen = true;
+            }
+          spices--;
+          }
         }
       c->monst = moNone;
       if(c->mondir != NODIR) c = c->move(c->mondir);
@@ -887,6 +904,13 @@ EX void moveWorm(cell *c) {
       playSound(NULL, "explosion");
       if(geometry == gZebraQuotient)
         achievement_gain_once("ZEBRAWORM", rg::special_geometry);
+      }
+    else if(iseel) {
+      if(spiceSeen)
+        addMessage(XLAT("The eel explodes in a shower of viscera!"));
+      else
+        addMessage(XLAT("The eel explodes!"));
+      playSound(NULL, "explosion");
       }
     return;
     }
@@ -909,7 +933,7 @@ EX void moveWorm(cell *c) {
   
     mountmove(mi, true);
     
-    if(id) {
+    if(id && !iseel) {
       cell *c2 = c, *c3 = c2;
       while(c2->monst == moTentacletail || c2->monst == moTentacleGhost) {
         auto mim = moveimon(c2).rev();
@@ -923,7 +947,7 @@ EX void moveWorm(cell *c) {
     
     cell *c2 = c, *c3 = c2;
     for(int a=0; a<WORMLENGTH; a++) {
-      if(c2->monst == moWormtail) {
+      if(c2->monst == moWormtail || c2->monst == moEelTail) {
         movei mim = moveimon(c2).rev();
         if(!mim.proper()) {
           drawParticles(c2, (linf[c2->land].color & 0xF0F0F0), 16);
@@ -935,7 +959,7 @@ EX void moveWorm(cell *c) {
         }
       }
     
-    if(c2->monst == moWormtail) c2->monst = moNone, c3->mondir = NODIR;
+    if(c2->monst == moWormtail || c2->monst == moEelTail) c2->monst = moNone, c3->mondir = NODIR;
     }
 
   }

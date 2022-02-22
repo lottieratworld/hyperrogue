@@ -769,14 +769,14 @@ EX void settemp(cell *c) {
 EX void findWormIvy(cell *c) {
   while(true) {
     if(c->monst == moWorm || c->monst == moTentacle || c->monst == moWormwait || c->monst == moTentaclewait ||
-      c->monst == moTentacleEscaping) {
+      c->monst == moTentacleEscaping || c->monst == moEel || c->monst == moEelWait) {
       worms.push_back(c); settemp(c);
       break;
       }
     else if(c->monst == moHexSnake) {
       hexsnakes.push_back(c); settemp(c);
       }
-    else if(c->monst == moWormtail || c->monst == moHexSnakeTail) {
+    else if(c->monst == moWormtail || c->monst == moHexSnakeTail || c->monst == moEelTail) {
       bool bug = true;
       for(int i=0; i<c->type; i++) {
         cell* c2 = c->move(i);

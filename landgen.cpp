@@ -2675,6 +2675,49 @@ EX void giantLandSwitch(cell *c, int d, cell *from) {
       break;
       }
 
+    case laShipwreck:
+      if(fargen) {
+        c->wall = waSea;
+        if(hrand(100) <= 4) {
+          bool nearborder = false;
+          forCellEx(c1, c) {
+            if(c1->land != laShipwreck) {nearborder = true; break;}
+            }
+          c->wall = nearborder ? waSea : waStone;
+          }
+        }
+      if(d == 8) {
+        if (c->wall == waSea) {
+          int stones = 0;
+          forCellEx(c1, c) {
+            if(c1->land != laShipwreck) {stones = 0; break;}
+            if(c1->wall == waStone) stones++;
+            }
+          if(stones > 0) c->wall = (hrand(100) <= (stones * 20)) ? waStone : waSea;
+          }
+        }
+      if(d == 7) {
+        if(c->wall == waSea) {
+          if(hrand(100) <= 4) {
+            forCellEx(c1, c) {
+              if(c1->wall == waStone) {c->wall = waBoat; break;}
+              }
+            }
+          }
+        if(among(c->wall, waSea, waBoat) && hrand_monster(4000) < 10 + items[itShipwreck] + yendor::hardness() && !safety) {
+          if(items[itShipwreck] >= 5 && hrand(100) < 10 && !peace::on)
+            c->monst = moWaterElemental;
+          else if(hrand(100) < 30 && !peace::on)
+            c->monst = pick(moEel, moRatlingBowman);
+          else
+            c->monst = pick(moViking, moPirate, moCShark, moRatling);
+          c->wall = among(c->monst, moCShark, moWaterElemental, moEel) ? waSea : waBoat;
+          }
+        if(!c->item && c->wall == waBoat && hrand(2000) < 200 + PT(kills[moRatling] + kills[moRatlingBowman], 50) && notDippingFor(itShipwreck))
+          c->item = itShipwreck;
+        }
+      break;
+
     case laNone:
     case laBarrier:
     case laOceanWall:

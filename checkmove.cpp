@@ -181,7 +181,7 @@ EX bool monstersnear(cell *c, eMonster who) {
         }
       // they cannot attack through vines
       if(!canAttack(c2, c2->monst, c, who, AF_NEXTTURN)) continue;
-      if(c2->monst == moWorm || c2->monst == moTentacle || c2->monst == moHexSnake) {
+      if(c2->monst == moWorm || c2->monst == moTentacle || c2->monst == moHexSnake || c2->monst == moEel) {
         if(passable_for(c2->monst, c, c2, 0))
           eaten = true;
         else if(c2->monst != moHexSnake) continue;

@@ -1332,7 +1332,7 @@ LAND( 0x764e7c*2, "Rose Garden", laRose, ZERO, itRose, RESERVED, roselanddesc)
   REQ( GOLD(R90) )
 
 LAND( 0xFFD580, "Warped Coast", laWarpCoast, ZERO | LF_WARPED | LF_COASTAL, itCoral, RESERVED, warplanddesc)
-  NATIVE(m == moRatling ? 2 : (m == moRatlingAvenger || m == moRatlingBowman) ? 1 : 0)
+  NATIVE(m == moRatling ? 2 : m == moRatlingAvenger ? 1 : 0)
   REQAS(laOcean,)
 
 LAND( 0xFFD580, "Warped Sea", laWarpSea, ZERO | LF_WARPED | LF_SEA | LF_COASTAL, itCoral, RESERVED, warplanddesc)
@@ -1729,11 +1729,25 @@ MONSTER('d', 0x901020, "Angry Die", moAngryDie, ZERO, RESERVED, moAnimatedDie,
   "You have made a die unhappy. Taste the revenge! This one won't forgive you, no matter what you do."
   )
 
+LAND( 0x0000FF, "Shipwreck Rocks", laShipwreck, ZERO | LF_SEA | LF_PURESEA, itShipwreck, RESERVED, NODESCYET)
+  NATIVE(m == moRatlingBowman ? 1 : 0)
+  #define LST {itPirate, itCoral, itFjord}
+  REQ(ITEMS_TOTAL(LST, variant_unlock_value()))
+  #undef LST
+
+ITEM('$', 0xda5e29, "Doubloon", itShipwreck, IC_TREASURE, ZERO, RESERVED, osNone, NODESCYET)
+
 MONSTER( 'R', 0x806040, "Ratling Hunter", moRatlingBowman, CF_FACE_UP | CF_LEADER | CF_RATLING, RESERVED, moPirate, 
-  "So, you have killed a Ratling on the unwarped sea? You will be punished for this! "
-  "This one can shoot you from a distance with their bow. Luckily their aim isn't very good, "
-  "as long as you keep moving or attacking they can't hit you."
+  "A ratling from the Warped Coast, equipped with a bow that can shoot at you from a range! "
+  "Luckily they are a bad shot. Additionally they are overly confident in their skills and always go for headshots, "
+  "as long as you keep moving and attacking they can't hit you. This unfortunately means you can't strategically skip "
+  "turns while they are around, which can be especially problematic with other monsters around..."
   )
+MONSTER( 'E', 0xD08080, "Eel", moEel, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_IGNORE_SMELL | CF_MULTITILE | CF_WORM | CF_HIGH_THREAT, RESERVED, moNone, redsnakedes )
+MONSTER( 'e', 0x905050, "Eel Tail", moEelTail, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, redsnakedes )
+MONSTER( 'E', 0x905050, "Eel W", moEelWait, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, redsnakedes )
+
+WALL( '.', 0x904060, "eel guts", waEelGuts, ZERO, RESERVED, 0, sgNone, "Ew... At least there's treasure here..." )
 
 //shmupspecials
 MONSTER( '@', 0xC0C0C0, "Rogue", moPlayer, CF_FACE_UP | CF_PLAYER, RESERVED, moNone, "In the Shoot'em Up mode, you are armed with thrown Knives.")

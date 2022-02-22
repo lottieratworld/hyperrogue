@@ -2243,7 +2243,7 @@ EX bool drawMonsterType(eMonster m, cell *where, const shiftmatrix& V1, color_t 
       return true;
       }        
 
-    case moWorm: case moWormwait: case moHexSnake: {
+    case moWorm: case moWormwait: case moHexSnake: case moEel: case moEelWait: {
       queuepoly(V, cgi.shWormHead, darkena(col, 0, 0xFF));
       queuepolyat(V, cgi.shWormEyes, 0xFF, PPR::ONTENTACLE_EYES);
       return true;
@@ -2672,7 +2672,7 @@ EX bool drawMonster(const shiftmatrix& Vparam, int ct, cell *c, color_t col, col
           queuepoly(mmscale(Vb, cgi.ABODY), cgi.shTentacle, (col << 8) + 0xFF);
           ShadowV(Vb, cgi.shTentacleX, PPR::GIANTSHADOW);
           */
-          bool hexsnake = c->monst == moHexSnake || c->monst == moHexSnakeTail;
+          bool hexsnake = c->monst == moHexSnake || c->monst == moHexSnakeTail || c->monst == moEel || c->monst == moEelWait || c->monst == moEelTail;
           bool thead = c->monst == moTentacle || c->monst == moTentaclewait || c->monst == moTentacleEscaping;
           hpcshape& sh = hexsnake ? cgi.shWormSegment : cgi.shSmallWormSegment;
           ld wav = hexsnake ? 0 : 
@@ -2683,6 +2683,8 @@ EX bool drawMonster(const shiftmatrix& Vparam, int ct, cell *c, color_t col, col
             col0 = minf[moWormtail].color;
           else if(thead)
             col0 = minf[moTentacletail].color;
+          else if(c->monst == moEel || c->monst == moEelWait)
+            col0 = minf[moEelTail].color;
           add_segment(taildist(c), [=] () {
             for(int i=11; i>=0; i--) {
               if(i < 3 && (c->monst == moTentacle || c->monst == moTentaclewait)) continue;
@@ -2724,7 +2726,7 @@ EX bool drawMonster(const shiftmatrix& Vparam, int ct, cell *c, color_t col, col
           ShadowV(Vb, cgi.shILeaf[ctof(c)], PPR::GIANTSHADOW);
           }
         }
-      else if(m == moWorm || m == moWormwait || m == moHexSnake) {
+      else if(m == moWorm || m == moWormwait || m == moHexSnake || m == moEel || m == moEelWait) {
         Vb = Vb * pispin;
         if(c->monmirror) Vb = Vb * Mirror;
         shiftmatrix Vbh = mmscale(Vb, cgi.AHEAD);
@@ -2802,7 +2804,7 @@ EX bool drawMonster(const shiftmatrix& Vparam, int ct, cell *c, color_t col, col
           queuepoly(GDIM == 3 ? mmscale(Vb, cgi.ABODY) : Vb, cgi.shWormSegment, darkena(col, 0, 0xFF));
           }
         else if(c->mondir == NODIR) {
-          bool hexsnake = c->monst == moHexSnake || c->monst == moHexSnakeTail;
+          bool hexsnake = c->monst == moHexSnake || c->monst == moHexSnakeTail || c->monst == moEel || c->monst == moEelWait || c->monst == moEelTail;
           cell *c2 = NULL;
           for(int i=0; i<c->type; i++)
             if(c->move(i) && isWorm(c->move(i)->monst) && c->move(i)->mondir == c->c.spin(i))

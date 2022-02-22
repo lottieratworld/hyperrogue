@@ -486,7 +486,7 @@ EX void killMonster(cell *c, eMonster who, flagtype deathflags IS(0)) {
   
   if(isRatling(m) && c->wall == waBoat) {
     bool avenge = false;
-    for(int i=0; i<c->type; i++) if(!isWarpedType(c->move(i)->land))
+    for(int i=0; i<c->type; i++) if(!isWarpedType(c->move(i)->land) && c->move(i)->land != laShipwreck)
       avenge = true;
     if(avenge)
       changes.value_add(avengers, 2);
