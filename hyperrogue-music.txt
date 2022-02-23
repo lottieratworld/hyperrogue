@@ -164,6 +164,8 @@
 [91] */music/hr3-graveyard.ogg
 # Dice Reserve
 [92] */music/hr3-laboratory.ogg
+# Shipwreck Rocks
+[93] */music/hr3-rlyeh.ogg
 
 # None [00] (used when the window is out of focus)
 

@@ -420,6 +420,11 @@ const char *ruindesc =
 const char *rock_description = 
   "Shoot the Space Rocks for score. Large Rocks will split into two smaller rocks.";
 
+const char *serpentdesc =
+  "A terrifying sea serpent! They slither slowly through water and can't be attacked normally, "
+  "however if they are unable to move they will crash into the boat or wall and explode! "
+  "After exploding they will leave behind the treasure they've swallowed during their feasts.";
+
 #if HDR
 enum eSlimegroup { sgNone, sgCave, sgWater, sgFloorA, sgFloorB, sgVine, sgTree };
 #endif

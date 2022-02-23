@@ -526,6 +526,8 @@ EX int moveval(cell *c1, cell *c2, int d, flagtype mf) {
   int bonus = 0;
   if(m == moBrownBug && snakelevel(c2) < snakelevel(c1)) bonus = -10;
 
+  if(m == moEel && c2->cpdist < c1->cpdist && !peace::on) return 1500 + bonus;
+
   if(hunt && (mf & MF_PATHDIST) && c2->pathdist < c1->pathdist && !peace::on) return 1500 + bonus; // good move
   
   // prefer straight direction when wandering
@@ -620,7 +622,6 @@ EX int pickMoveDirection(cell *c, flagtype mf) {
     cell *c2 = c->move(d);
     int val = moveval(c, c2, d, mf);
     // printf("[%d] %p: val=%5d pass=%d\n", d, c2, val, passable(c2,c,0));
-    printf("[%d] %p: val=%5d pass=%d\n", d, c2, val, passable_for(c->monst, c2, c, P_MONSTER));
     if(val > bestval) global_posdir.clear(), bestval = val;
     if(val == bestval) global_posdir.push_back(d);
     }
@@ -840,6 +841,7 @@ EX void moveWorm(cell *c) {
   int iseel = m == moEel;
   
   int mf = MF_PATHDIST | AF_EAT;
+  if(iseel) mf = AF_EAT;
   
   if(mounted) mf ^= (MF_MOUNT | MF_PATHDIST);
   
@@ -872,7 +874,7 @@ EX void moveWorm(cell *c) {
       }
     eItem loc = treasureType(c->land);
     bool spiceSeen = false;
-    while(c->monst == moWorm || c->monst == moWormtail || c->monst == moTentacle || c->monst == moTentacletail || c->monst == moEel || c->monst == moEelWait) {
+    while(c->monst == moWorm || c->monst == moWormtail || c->monst == moTentacle || c->monst == moTentacletail || c->monst == moEel || c->monst == moEelTail) {
       // if(!id) 
       explodeAround(c);
       drawParticles(c, minf[c->monst].color, 16);
@@ -880,7 +882,7 @@ EX void moveWorm(cell *c) {
         if(iseel && c->land == laShipwreck) {
           if(notDippingForExtra(itShipwreck, loc)) {
             c->item = itShipwreck;
-            if(c->wall == waSea) {c->wall = waEelGuts; c->wparam = 10;}
+            if(c->wall == waSea) {c->wall = waTempBridge; c->wparam = 10;}
             if(c->cpdist <= 6) spiceSeen = true;
             }
           spices--;
@@ -906,10 +908,7 @@ EX void moveWorm(cell *c) {
         achievement_gain_once("ZEBRAWORM", rg::special_geometry);
       }
     else if(iseel) {
-      if(spiceSeen)
-        addMessage(XLAT("The eel explodes in a shower of viscera!"));
-      else
-        addMessage(XLAT("The eel explodes!"));
+      addMessage(XLAT("The eel explodes from the impact!"));
       playSound(NULL, "explosion");
       }
     return;

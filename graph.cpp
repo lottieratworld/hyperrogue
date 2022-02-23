@@ -835,7 +835,7 @@ EX bool drawItemType(eItem it, cell *c, const shiftmatrix& V, color_t icol, int 
     it == itSlime ? &cgi.shEgg :
     xch == '%' ? &cgi.shDaisy : xch == '$' ? &cgi.shStar : xch == ';' ? &cgi.shTriangle :
     xch == '!' ? &cgi.shTriangle : it == itBone ? &cgi.shNecro : it == itStatue ? &cgi.shStatue :
-    among(it, itIvory, itEclectic) ? &cgi.shFigurine : 
+    among(it, itIvory, itEclectic, itShipwreck) ? &cgi.shFigurine : 
     xch == '?' ? &cgi.shBookCover : 
     it == itKey ? &cgi.shKey : 
     it == itRevolver ? &cgi.shGun :

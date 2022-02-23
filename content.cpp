@@ -1729,25 +1729,25 @@ MONSTER('d', 0x901020, "Angry Die", moAngryDie, ZERO, RESERVED, moAnimatedDie,
   "You have made a die unhappy. Taste the revenge! This one won't forgive you, no matter what you do."
   )
 
-LAND( 0x0000FF, "Shipwreck Rocks", laShipwreck, ZERO | LF_SEA | LF_PURESEA, itShipwreck, RESERVED, NODESCYET)
+LAND( 0x008060, "Shipwreck Rocks", laShipwreck, ZERO | LF_SEA | LF_PURESEA, itShipwreck, RESERVED, NODESCYET)
   NATIVE(m == moRatlingBowman ? 1 : 0)
   #define LST {itPirate, itCoral, itFjord}
   REQ(ITEMS_TOTAL(LST, variant_unlock_value()))
   #undef LST
 
-ITEM('$', 0xda5e29, "Doubloon", itShipwreck, IC_TREASURE, ZERO, RESERVED, osNone, NODESCYET)
+ITEM('/', 0xA08010, "Gold Figurine", itShipwreck, IC_TREASURE, ZERO, RESERVED, osNone,
+  "A small figurine of a person. Probably someone important, or rich. Seems like their shipment of figurines didn't go very well..."
+  )
 
 MONSTER( 'R', 0x806040, "Ratling Hunter", moRatlingBowman, CF_FACE_UP | CF_LEADER | CF_RATLING, RESERVED, moPirate, 
   "A ratling from the Warped Coast, equipped with a bow that can shoot at you from a range! "
   "Luckily they are a bad shot. Additionally they are overly confident in their skills and always go for headshots, "
   "as long as you keep moving and attacking they can't hit you. This unfortunately means you can't strategically skip "
-  "turns while they are around, which can be especially problematic with other monsters around..."
+  "turns while they are around, which can be especially problematic with other monsters around."
   )
-MONSTER( 'E', 0xD08080, "Eel", moEel, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_IGNORE_SMELL | CF_MULTITILE | CF_WORM | CF_HIGH_THREAT, RESERVED, moNone, redsnakedes )
-MONSTER( 'e', 0x905050, "Eel Tail", moEelTail, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, redsnakedes )
-MONSTER( 'E', 0x905050, "Eel W", moEelWait, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, redsnakedes )
-
-WALL( '.', 0x904060, "eel guts", waEelGuts, ZERO, RESERVED, 0, sgNone, "Ew... At least there's treasure here..." )
+MONSTER( 'S', 0x208020, "Sea Serpent", moEel, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_IGNORE_SMELL | CF_MULTITILE | CF_WORM | CF_HIGH_THREAT, RESERVED, moNone, serpentdesc )
+MONSTER( 's', 0x156015, "Sea Serpent Tail", moEelTail, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, serpentdesc )
+MONSTER( 'S', 0x156015, "Sea Serpent W", moEelWait, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, serpentdesc )
 
 //shmupspecials
 MONSTER( '@', 0xC0C0C0, "Rogue", moPlayer, CF_FACE_UP | CF_PLAYER, RESERVED, moNone, "In the Shoot'em Up mode, you are armed with thrown Knives.")

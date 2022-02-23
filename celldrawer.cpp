@@ -132,7 +132,7 @@ void celldrawer::setcolors() {
     else if(isWarpedType(c->land))
       fcol = 0x0000C0 + int((warptype(c)?30:-30) * sintick(600));
     else if(c->land == laShipwreck)
-      fcol = 0x007060;
+      fcol = 0x007050;
     else
       fcol = wcol;
     }
@@ -452,6 +452,12 @@ void celldrawer::setcolors() {
       fcol = nestcolors[fv&7];
       if(realred(c->wall))
         wcol = fcol * (4 + snakelevel(c)) / 4;
+      break;
+      }
+
+    case laShipwreck: {
+      fcol = winf[waStone].color;
+      if(c->wall == waTempBridge) fcol = wcol = 0x156015;
       break;
       }
         

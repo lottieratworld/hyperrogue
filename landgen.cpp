@@ -2698,19 +2698,17 @@ EX void giantLandSwitch(cell *c, int d, cell *from) {
         }
       if(d == 7) {
         if(c->wall == waSea) {
-          if(hrand(100) <= 4) {
+          if(hrand(100) <= 20) {
             forCellEx(c1, c) {
               if(c1->wall == waStone) {c->wall = waBoat; break;}
               }
             }
           }
-        if(among(c->wall, waSea, waBoat) && hrand_monster(4000) < 10 + items[itShipwreck] + yendor::hardness() && !safety) {
-          if(items[itShipwreck] >= 5 && hrand(100) < 10 && !peace::on)
+        if(among(c->wall, waSea, waBoat) && hrand_monster(4000) <= 10 + items[itShipwreck] + yendor::hardness() && !safety) {
+          if(items[itShipwreck] >= 5 && hrand(100) <= 10 && !peace::on)
             c->monst = moWaterElemental;
-          else if(hrand(100) < 30 && !peace::on)
-            c->monst = pick(moEel, moRatlingBowman);
           else
-            c->monst = pick(moViking, moPirate, moCShark, moRatling);
+            c->monst = pick(moViking, moPirate, moCShark, moRatling, moEel, moRatlingBowman, moRatlingBowman);
           c->wall = among(c->monst, moCShark, moWaterElemental, moEel) ? waSea : waBoat;
           }
         if(!c->item && c->wall == waBoat && hrand(2000) < 200 + PT(kills[moRatling] + kills[moRatlingBowman], 50) && notDippingFor(itShipwreck))
