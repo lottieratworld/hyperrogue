@@ -1583,6 +1583,22 @@ void celldrawer::draw_features() {
       if(!mapeditor::drawUserShape(V * ddspin(c, c->mondir), mapeditor::sgWall, c->wparam, darkena(wcol, fd, 0xFF), c))
         queuepoly(V, cgi.shTriangle, darkena(wcol, fd, 0xFF));
       break;
+
+    case waRaftWall: case waRaftWarpWall: case waCannon:
+      if(true) {
+        const int layers = 2 << detaillevel;
+        dynamicval<const hpcshape*> ds(qfi.shape, &cgi.shCircleFloor);
+        dynamicval<transmatrix> dss(qfi.spin, Id);
+        for(int z=1; z<=layers; z++) {
+          double zg = zgrad0(0, geom3::actual_wall_height(), z, layers);
+          draw_qfi(c, xyzscale(V, (z == layers) ? zg*0.8 : zg*0.5, zg),
+            darkena(gradient(0x542C07, 0xA05201, 0, z, layers), fd, 0xFF), PPR::WALL3+z-layers+2);
+          }
+        dynamicval<color_t> p(poly_outline, OUTLINE_TRANS);
+        draw_qfi(c, xyzscale(V, 0.8, 1), SHADOW_WALL, PPR::WALLSHADOW);
+      }
+//      draw_floorshape(c, mmscale(V, cgi.WALL), cgi.shFloor, darkena(wcol, fd, 0xFF), PPR::WALL3+3);
+      break;
   
     default: {
       wa_default:

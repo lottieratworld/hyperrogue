@@ -2263,7 +2263,7 @@ EX namespace heat {
           else if(c2->wall == waVinePlant || c2->wall == waRose || c2->wall == waSaloon ||
             c2->wall == waWeakBranch || c2->wall == waCanopy || c2->wall == waTrunk || c2->wall == waSolidBranch ||
             c2->wall == waBigBush || c2->wall == waSmallBush || c2->wall == waBonfireOff || c2->wall == waSmallTree ||
-            c2->wall == waDock || c2->wall == waRaft || c2->wall == waRaftWarp || c2->wall == waCannon)
+            c2->wall == waDock || isRaft(c2->wall))
             newfires.emplace_back(c2, 12);
           else if(cellHalfvine(c2) && last && last->wall == c2->wall)
             newfires.emplace_back(c2, 12);

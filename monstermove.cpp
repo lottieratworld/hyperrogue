@@ -1993,7 +1993,7 @@ EX void specialMoves() {
           }
       }
 
-    else if(m == moRatlingBowman && c->wall == waRaftWall) {
+    else if(m == moRatlingBowman && among(c->wall, waRaftWall, waRaftWarpWall)) {
       c->stuntime = 1;
       }
     }

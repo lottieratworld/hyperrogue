@@ -132,7 +132,7 @@ EX bool monstersnear(cell *c, eMonster who) {
   
   if(havewhat&HF_BOW && lastmovetype == lmSkip) {
     for(cell *c1: bow_targets(c)) 
-      if(c1->monst == moRatlingBowman && !c1->stuntime) {
+      if(c1->monst == moRatlingBowman && !c1->stuntime && c1->wall != waCannon) {
         res++; who_kills_me = moRatlingBowman;
         }
     }

@@ -404,7 +404,7 @@ EX bool makeflame(cell *c, int timeout, bool checkonly) {
     }
   else if(c->wall != waCTree && c->wall != waBigTree && c->wall != waSmallTree && 
     c->wall != waVinePlant && !passable(c, NULL, P_MONSTER | P_MIRROR) &&
-    c->wall != waSaloon && c->wall != waRose) return false;
+    c->wall != waSaloon && c->wall != waRose && !isRaft(c->wall)) return false;
   // reptiles are able to use the water to put the fire off
   else if(c->wall == waReptileBridge) return false;
   else if(c->wall == waDock) {
@@ -766,7 +766,7 @@ EX bool makeEmpty(cell *c) {
     c->wall = waCavefloor;
   else if(c->land == laDeadCaves)
     c->wall = waDeadfloor2;
-  else if(c->land == laCaribbean || c->land == laOcean || c->land == laWhirlpool || c->land == laLivefjord || c->land == laWarpSea || c->land == laKraken || c->wall == waBoat)
+  else if(c->land == laCaribbean || c->land == laOcean || c->land == laWhirlpool || c->land == laLivefjord || c->land == laWarpSea || c->land == laKraken || c->land == laShipwreck || c->wall == waBoat)
     c->wall = waBoat; // , c->item = itOrbYendor;
   else if(c->land == laMinefield)
     c->wall = waMineOpen;
