@@ -458,6 +458,8 @@ void celldrawer::setcolors() {
     case laShipwreck: {
       fcol = winf[waStone].color;
       if(c->wall == waTempBridge) fcol = wcol = 0x156015;
+      else if(c->wall == waRaft) fcol = winf[waRaft].color;
+      else if(c->wall == waRaftWarp) fcol = warptype(c) ? winf[waRaft].color : darkenedby(winf[waRaft].color, 1);
       break;
       }
         
@@ -1182,8 +1184,13 @@ void celldrawer::set_land_floor(const shiftmatrix& Vf) {
 
     case laDesert:
     case laRedRock: case laSnakeNest:
-    case laCocytus: case laShipwreck:
+    case laCocytus:
       set_floor(cgi.shDesertFloor);
+      break;
+
+    case laShipwreck:
+      set_floor(cgi.shDesertFloor);
+      if(c->wall == waRaft) set_floor(cgi.shFloor);
       break;
 
     case laBull:

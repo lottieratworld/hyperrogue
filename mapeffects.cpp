@@ -117,7 +117,7 @@ EX eGravity get_move_gravity(cell *c, cell *c2) {
   }
 
 EX bool isWarped(cell *c) {
-  return isWarpedType(c->land) || (!inmirrororwall(c->land) && (items[itOrb37] && c->cpdist <= 4));
+  return isWarpedType(c->land) || (!inmirrororwall(c->land) && (items[itOrb37] && c->cpdist <= 4)) || c->wall == waRaftWarp;
   }
 
 EX bool nonAdjacent(cell *c, cell *c2) {
@@ -147,7 +147,7 @@ EX void useup(cell *c) {
     drawParticles(c, c->wall == waFire ? 0xC00000 : winf[c->wall].color, 10, 50);
     if(c->wall == waTempFloor)
       c->wall = waChasm;
-    else if(c->wall == waTempBridge || c->wall == waTempBridgeBlocked || c->wall == waBurningDock || c->land == laBrownian)
+    else if(c->wall == waTempBridge || c->wall == waTempBridgeBlocked || c->wall == waBurningDock || c->land == laBrownian || c->land == laShipwreck)
       placeWater(c, c);
     else {
       c->wall = c->land == laCaribbean ? waCIsland2 : waNone;

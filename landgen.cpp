@@ -2677,14 +2677,43 @@ EX void giantLandSwitch(cell *c, int d, cell *from) {
 
     case laShipwreck:
       if(fargen) {
-        c->wall = waSea;
-        if(hrand(100) <= 4) {
+        if(hrand(5000) < 25 && celldist(c) >= 5 && !safety) {
+          bool goodland = true;
+          cell *c2 = createMov(c, hrand(c->type));
+          for(auto cx: {c, c2})
+            forCellCM(c3,cx) {
+              if(c3->land != laNone && c3->land != laShipwreck)
+                goodland = false;
+              if(c3->bardir != NODIR && c3->bardir != NOBARRIERS) 
+                goodland = false;
+              }
+          if(goodland) {
+            bool warpraft = hrand(10) < 5;
+            auto newraftcell = [warpraft] (cell *c) {
+              c->bardir = NOBARRIERS;
+              c->wall = warpraft ? waRaftWarp : waRaft;
+              c->item = (hrand(3000) < 50 + PT(kills[moPirate] + kills[moViking] + kills[moRatling] + kills[moRatlingBowman] + kills[moWaterElemental], 100) && notDippingFor(itShipwreck)) ? itShipwreck : itNone;
+              };
+            newraftcell(c);
+            forCellCM(c3, c) {
+              newraftcell(c3);
+              }
+            newraftcell(c2);
+            forCellCM(c3, c2) {
+              if(c3 == c || isNeighbor(c3, c)) continue;
+              newraftcell(c3);
+              }
+            }
+          }
+        else if(hrand(100) <= 4 && celldist(c) >= 5) {
           bool nearborder = false;
           forCellEx(c1, c) {
-            if(c1->land != laShipwreck) {nearborder = true; break;}
+            if(c1->land != laShipwreck || among(c1->wall, waRaft, waRaftWarp)) {nearborder = true; break;}
             }
           c->wall = nearborder ? waSea : waStone;
           }
+        else if(!among(c->wall, waRaft, waRaftWarp))
+          c->wall = waSea;
         }
       if(d == 8) {
         if (c->wall == waSea) {
@@ -2698,21 +2727,26 @@ EX void giantLandSwitch(cell *c, int d, cell *from) {
         }
       if(d == 7) {
         if(c->wall == waSea) {
-          if(hrand(100) <= 20) {
-            forCellEx(c1, c) {
-              if(c1->wall == waStone) {c->wall = waBoat; break;}
+          if(hrand(100) <= 25) {
+            forCellCM(c1, c) {
+              if(among(c1->wall, waStone, waRaft, waRaftWarp)) {c->wall = waBoat; break;}
               }
             }
           }
-        if(among(c->wall, waSea, waBoat) && hrand_monster(4000) <= 10 + items[itShipwreck] + yendor::hardness() && !safety) {
+        if(c->wall == waRaft && hrand_monster(1500) <= 60 + items[itShipwreck] + yendor::hardness() && !safety) {
+          c->monst = pick(moViking, moPirate);
+          }
+        else if(c->wall == waRaftWarp && hrand_monster(1500) <= 60 + items[itShipwreck] + yendor::hardness() && !safety) {
+          c->monst = pick(moRatling, moRatlingBowman);
+          }
+        else if(c->wall == waSea && hrand_monster(4000) <= 10 + items[itShipwreck] + yendor::hardness() && !safety) {
           if(items[itShipwreck] >= 5 && hrand(100) <= 10 && !peace::on)
             c->monst = moWaterElemental;
           else
-            c->monst = pick(moViking, moPirate, moCShark, moRatling, moEel, moRatlingBowman, moRatlingBowman);
-          c->wall = among(c->monst, moCShark, moWaterElemental, moEel) ? waSea : waBoat;
+            c->monst = pick(moCShark, moAlbatross);
           }
-        if(!c->item && c->wall == waBoat && hrand(2000) < 200 + PT(kills[moRatling] + kills[moRatlingBowman], 50) && notDippingFor(itShipwreck))
-          c->item = itShipwreck;
+//        if(!c->item && c->wall == waBoat && hrand(2000) < 200 + PT(kills[moRatling] + kills[moRatlingBowman], 50) && notDippingFor(itShipwreck))
+//          c->item = itShipwreck;
         }
       break;
 

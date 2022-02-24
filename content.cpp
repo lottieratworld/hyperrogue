@@ -1730,8 +1730,8 @@ MONSTER('d', 0x901020, "Angry Die", moAngryDie, ZERO, RESERVED, moAnimatedDie,
   )
 
 LAND( 0x008060, "Shipwreck Rocks", laShipwreck, ZERO | LF_SEA | LF_PURESEA, itShipwreck, RESERVED, NODESCYET)
-  NATIVE(m == moRatlingBowman ? 1 : 0)
-  #define LST {itPirate, itCoral, itFjord}
+  NATIVE(among(m, moPirate, moViking, moRatling, moRatlingBowman, moWaterElemental) ? 2 : among(m, moCSHark, moAlbatross) ? 1 : 0)
+  #define LST {itPirate, itCoral, itFjord, itKraken}
   REQ(ITEMS_TOTAL(LST, variant_unlock_value()))
   #undef LST
 
@@ -1748,6 +1748,9 @@ MONSTER( 'R', 0x806040, "Ratling Hunter", moRatlingBowman, CF_FACE_UP | CF_LEADE
 MONSTER( 'S', 0x208020, "Sea Serpent", moEel, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_IGNORE_SMELL | CF_MULTITILE | CF_WORM | CF_HIGH_THREAT, RESERVED, moNone, serpentdesc )
 MONSTER( 's', 0x156015, "Sea Serpent Tail", moEelTail, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, serpentdesc )
 MONSTER( 'S', 0x156015, "Sea Serpent W", moEelWait, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, serpentdesc )
+
+WALL( '.', 0x804000, "Raft", waRaft, ZERO, RESERVED, 0, sgNone,NODESCYET)
+WALL( '.', 0x804000, "Warped Raft", waRaftWarp, ZERO, RESERVED, 0, sgNone,NODESCYET)
 
 //shmupspecials
 MONSTER( '@', 0xC0C0C0, "Rogue", moPlayer, CF_FACE_UP | CF_PLAYER, RESERVED, moNone, "In the Shoot'em Up mode, you are armed with thrown Knives.")
