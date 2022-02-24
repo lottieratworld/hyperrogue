@@ -1980,6 +1980,10 @@ EX void specialMoves() {
         }
       }
 
+    else if(isLeader(m) && c->wall == waCannon && !peace::on) {
+      c->stuntime = 1;
+      }
+
     else if(m == moRatlingBowman && lastmovetype == lmSkip && !peace::on) {
       for(cell *c1: bow_targets(c))
         if(canAttack(c, moRatlingBowman, c1, c1->monst, AF_GETPLAYER | AF_ONLY_FBUG | AF_GUN)) {
@@ -1987,6 +1991,10 @@ EX void specialMoves() {
           c->stuntime = 1;
           break;
           }
+      }
+
+    else if(m == moRatlingBowman && c->wall == waRaftWall) {
+      c->stuntime = 1;
       }
     }
   }
@@ -2075,6 +2083,7 @@ EX void movemonsters() {
   
   #if CAP_COMPLEX2
   ambush::check_state();
+  shipwreck::movetracker(playerpos(1));
   #endif
 
   sagefresh = true;

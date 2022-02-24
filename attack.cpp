@@ -175,6 +175,10 @@ EX bool canAttack(cell *c1, eMonster m1, cell *c2, eMonster m2, flagtype flags) 
 
   if(m2 == moVizier && c2->hitpoints > 1 && !c2->stuntime)
     if(!(flags & (AF_MAGIC | AF_TOUGH | AF_EAT | AF_HORNS | AF_LANCE | AF_BACK | AF_FAST | AF_BULL | AF_CRUSH))) return false;
+
+  if((isLeader(m1) && (c1->wall == waCannon || c1->wall == waRaftWall) && !(flags & AF_GUN)) ||
+    (isLeader(m2) && (c2->wall == waCannon || c2->wall == waRaftWall)))
+    return false;
                        
   return true;
   }

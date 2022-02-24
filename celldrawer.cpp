@@ -458,8 +458,6 @@ void celldrawer::setcolors() {
     case laShipwreck: {
       fcol = winf[waStone].color;
       if(c->wall == waTempBridge) fcol = wcol = 0x156015;
-      else if(c->wall == waRaft) fcol = winf[waRaft].color;
-      else if(c->wall == waRaftWarp) fcol = warptype(c) ? winf[waRaft].color : darkenedby(winf[waRaft].color, 1);
       break;
       }
         
@@ -493,7 +491,7 @@ void celldrawer::setcolors() {
   switch(c->wall) {
     case waSulphur: case waSulphurC: case waPlatform: case waMercury: case waDock:
     case waAncientGrave: case waFreshGrave: case waThumperOn: case waThumperOff: case waBonfireOff:
-    case waRoundTable: case waExplosiveBarrel:
+    case waRoundTable: case waExplosiveBarrel: case waRaft: case waRaftWall: case waCannon:
       // floors become fcol
       fcol = wcol;
       break;
@@ -565,6 +563,10 @@ void celldrawer::setcolors() {
     case waEditStatue:
       if(c->land == laCanvas) wcol = c->landparam;
       else wcol = (0x125628 * c->wparam) & 0xFFFFFF;
+
+    case waRaftWarp: case waRaftWarpWall:
+      fcol = wcol = warptype(c) ? winf[waRaft].color : darkenedby(winf[waRaft].color, 1);
+      break;
   
     default:
       break;    
@@ -1190,7 +1192,7 @@ void celldrawer::set_land_floor(const shiftmatrix& Vf) {
 
     case laShipwreck:
       set_floor(cgi.shDesertFloor);
-      if(c->wall == waRaft) set_floor(cgi.shFloor);
+      if(isRaft(c->wall)) set_floor(cgi.shFloor);
       break;
 
     case laBull:
@@ -2044,6 +2046,9 @@ void celldrawer::draw_wall_full() {
         draw_floorshape(c, mmscale(V, cgi.SLEV[2]), cgi.shRoseFloor, 0x80406040, PPR::LIZEYE);
       if(rd == 2)
         draw_floorshape(c, mmscale(V, cgi.SLEV[2]), cgi.shRoseFloor, 0x80406080, PPR::LIZEYE);
+      }
+    if(GDIM == 2 && shipwreck::tracking && c == shipwreck::trackcell) {
+      draw_floorshape(c, mmscale(V, cgi.SLEV[2]), cgi.shChargedFloor, ((shipwreck::firestage > 0) ? 0xFFFF0000 : 0xFF000000) + (0x70 - sintick(400) * 0x40), PPR::LIZEYE);
       }
 
     if(c->wall == waChasm) {

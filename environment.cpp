@@ -45,6 +45,7 @@ namespace hr {
 #define HF_JUMP       Flag(32)
 #define HF_DICE       Flag(33)
 #define HF_BOW        Flag(34)
+#define HF_CANNON     Flag(35)
 #endif
 
 EX flagtype havewhat, hadwhat;
@@ -436,6 +437,8 @@ EX void bfs() {
         if(c2->land == laClearing) havewhat |= HF_MUTANT;
 
         if(c2->wall == waRose) havewhat |= HF_ROSE;
+
+        if(c2->wall == waCannon && isLeader(c2->monst) && c2->cpdist <= 5) havewhat |= HF_CANNON;
         
         if((hadwhat & HF_ROSE) && (rosemap[c2] & 3)) havewhat |= HF_ROSE;
         

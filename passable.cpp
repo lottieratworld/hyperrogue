@@ -221,6 +221,8 @@ EX bool passable(cell *w, cell *from, flagtype flags) {
       return true;
 
     if(w->wall == waBigStatue && from && canPushStatueOn(from, flags)) return true;
+
+    if(isRaft(w->wall)) return true;
     }
   
   if(F(P_EARTHELEM)) {

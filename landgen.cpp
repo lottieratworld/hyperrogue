@@ -2676,17 +2676,21 @@ EX void giantLandSwitch(cell *c, int d, cell *from) {
       }
 
     case laShipwreck:
-      if(fargen) {
-        if(hrand(5000) < 25 && celldist(c) >= 5 && !safety) {
+      if(fargen && !isRaft(c->wall)) {
+        if(hrand(5000) < 25 && celldist(c) >= 6 && !safety && pseudohept(c)) {
           bool goodland = true;
-          cell *c2 = createMov(c, hrand(c->type));
-          for(auto cx: {c, c2})
-            forCellCM(c3,cx) {
+          forCellCM(c2,c) {
+            forCellCM(c3,c2) {
               if(c3->land != laNone && c3->land != laShipwreck)
                 goodland = false;
               if(c3->bardir != NODIR && c3->bardir != NOBARRIERS) 
                 goodland = false;
+              if(among(c3->wall, waRaft, waRaftWarp, waCannon))
+                goodland = false;
+              if(!goodland) break;
               }
+            if(!goodland) break;
+            }
           if(goodland) {
             bool warpraft = hrand(10) < 5;
             auto newraftcell = [warpraft] (cell *c) {
@@ -2694,25 +2698,25 @@ EX void giantLandSwitch(cell *c, int d, cell *from) {
               c->wall = warpraft ? waRaftWarp : waRaft;
               c->item = (hrand(3000) < 50 + PT(kills[moPirate] + kills[moViking] + kills[moRatling] + kills[moRatlingBowman] + kills[moWaterElemental], 100) && notDippingFor(itShipwreck)) ? itShipwreck : itNone;
               };
-            newraftcell(c);
-            forCellCM(c3, c) {
-              newraftcell(c3);
-              }
-            newraftcell(c2);
-            forCellCM(c3, c2) {
-              if(c3 == c || isNeighbor(c3, c)) continue;
-              newraftcell(c3);
+            c->wall = warpraft ? waRaftWarpWall : waRaftWall;
+            if(!warpraft && hrand(20) < 8) c->wall = waCannon;
+            forCellCM(c2, c) {
+              newraftcell(c2);
+              forCellCM(c3, c2) {
+                if(c3 == c || isNeighbor(c3, c)) continue;
+                newraftcell(c3);
+                }
               }
             }
           }
         else if(hrand(100) <= 4 && celldist(c) >= 5) {
           bool nearborder = false;
           forCellEx(c1, c) {
-            if(c1->land != laShipwreck || among(c1->wall, waRaft, waRaftWarp)) {nearborder = true; break;}
+            if(c1->land != laShipwreck || isRaft(c1->wall)) {nearborder = true; break;}
             }
           c->wall = nearborder ? waSea : waStone;
           }
-        else if(!among(c->wall, waRaft, waRaftWarp))
+        else
           c->wall = waSea;
         }
       if(d == 8) {
@@ -2733,7 +2737,8 @@ EX void giantLandSwitch(cell *c, int d, cell *from) {
               }
             }
           }
-        if(c->wall == waRaft && hrand_monster(1500) <= 60 + items[itShipwreck] + yendor::hardness() && !safety) {
+        if(c->wall == waCannon) c->monst = moPirate;
+        else if(c->wall == waRaft && hrand_monster(1500) <= 60 + items[itShipwreck] + yendor::hardness() && !safety) {
           c->monst = pick(moViking, moPirate);
           }
         else if(c->wall == waRaftWarp && hrand_monster(1500) <= 60 + items[itShipwreck] + yendor::hardness() && !safety) {

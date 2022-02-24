@@ -1447,5 +1447,71 @@ EX namespace dice {
   int hook = addHook(hooks_clearmemory, 0, [] () { data.clear(); });
 EX }
 
+EX namespace shipwreck {
+  EX bool tracking;
+  EX cell *trackcell;
+  EX int firestage;
+  EX void movetracker(cell *c) {
+    if(havewhat&HF_CANNON){
+      if(!tracking) {
+        addMessage(XLAT("You see a cannon in the distance..."));
+        tracking = true;
+        cell *c1 = c->move(hrand(c->type));
+        for(int i=0; i<3; i++) {
+          while (true){
+            cell *c2 = c1->move(hrand(c1->type));
+            if(c2->cpdist > c1->cpdist) {
+              c1 = c2;
+              break;
+              }
+            }
+          }
+        trackcell = c1;
+        }
+      else {
+        switch(firestage) {
+          case 3:
+            firestage--;
+            changes.ccell(trackcell);
+            playSound(trackcell, "explosion");
+            drawFireParticles(trackcell, 30, 150);
+            brownian::dissolve_brownian(trackcell, 2);
+            makeflame(trackcell, 6, false);
+            break;
+
+          case 1:
+            addMessage(XLAT("The cannon has been reloaded!"));
+            firestage--;
+            break;
+            
+          case 0:
+            if(trackcell->cpdist > 0) {
+              while (true){
+                cell *c1 = trackcell->move(hrand(trackcell->type));
+                if(c1->cpdist < trackcell->cpdist) {
+                  trackcell = c1;
+                  break;
+                  }
+                }
+              }
+            else {
+              firestage = 3;
+              }
+            break;
+
+          default:
+            firestage--;
+            break;
+          }
+        }
+      }
+    else if(tracking) {
+      addMessage(XLAT("You've escaped the cannons!"));
+      tracking = false;
+      firestage = 0;
+      }
+    }
+EX }
+
 }
 #endif

@@ -805,6 +805,8 @@ void pcmove::tell_why_cannot_attack() {
     addMessage(XLAT("You cannot attack your own mount!"));
   else if(checkOrb(c2->monst, itOrbShield))
     addMessage(XLAT("A magical shield protects %the1!", c2->monst));
+  else if(isLeader(c2->monst) && (c2->wall == waCannon || c2->wall == waRaftWall)) 
+    addMessage(XLAT("%The1 is too high to reach!", c2->monst));
   else
     addMessage(XLAT("For some reason... cannot attack!"));
   }

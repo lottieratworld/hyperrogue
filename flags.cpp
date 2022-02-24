@@ -392,4 +392,8 @@ EX bool isDie(eWall w) {
   return among(w, waRichDie, waHappyDie);
   }
 
+EX bool isRaft(eWall w) {
+  return among(w, waRaft, waRaftWarp, waRaftWall, waRaftWarpWall, waCannon);
+  }
+
 }
