@@ -350,6 +350,7 @@ EX int chasmgraph(cell *c) {
   if(c->wall == waShallow) return 1;
   if(wmescher && c->wall == waBarrier && c->land == laOceanWall) return 1;
   if(c->wall == waReptileBridge) return 1;
+  if(isRaft(c->wall) && GDIM == 2) return 1;
   return 0;
   }
 

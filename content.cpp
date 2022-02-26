@@ -1729,14 +1729,19 @@ MONSTER('d', 0x901020, "Angry Die", moAngryDie, ZERO, RESERVED, moAnimatedDie,
   "You have made a die unhappy. Taste the revenge! This one won't forgive you, no matter what you do."
   )
 
-LAND( 0x008060, "Shipwreck Rocks", laShipwreck, ZERO | LF_SEA | LF_PURESEA, itShipwreck, RESERVED, NODESCYET)
+LAND( 0x008060, "Shipwreck Rocks", laShipwreck, ZERO | LF_SEA | LF_PURESEA, itShipwreck, RESERVED,
+  "This part of the sea is full of dangerous rock formations that have shredded many ships over the year. "
+  "Unfortunately for you, the many Pirates, Vikings, and Ratlings here have already scavenged all the good treasure here. "
+  "Some of the Pirates have brought their cannons, and the Ratlings have brought their best archers!"
+  )
   NATIVE(among(m, moPirate, moViking, moRatling, moRatlingBowman) ? 2 : among(m, moCShark, moAlbatross) ? 1 : 0)
   #define LST {itPirate, itCoral, itFjord}
   REQ(ITEMS_TOTAL(LST, variant_unlock_value()))
   #undef LST
 
-ITEM('/', 0xA08010, "Gold Figurine", itShipwreck, IC_TREASURE, ZERO, RESERVED, osNone,
-  "A small figurine of a person. Probably someone important, or rich. Seems like their shipment of figurines didn't go very well..."
+ITEM('/', 0x707070, "Lead Figurine", itShipwreck, IC_TREASURE, ZERO | IF_FIREPROOF, RESERVED, osNone,
+  "A small and very heavy game piece made of lead. You're not sure what kind of game it's for, but "
+  "the lead seems to have strange properties which might be of interest to alchemists and researchers back home..."
   )
 
 MONSTER( 'R', 0x806040, "Ratling Hunter", moRatlingBowman, CF_FACE_UP | CF_LEADER | CF_RATLING, RESERVED, moPirate, 
@@ -1749,15 +1754,25 @@ MONSTER( 'S', 0x208020, "Sea Serpent", moEel, ZERO | CF_NOGHOST | CF_NOBLOW | CF
 MONSTER( 's', 0x156015, "Sea Serpent Tail", moEelTail, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, serpentdesc )
 MONSTER( 'S', 0x156015, "Sea Serpent W", moEelWait, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, serpentdesc )
 
-WALL( '.', 0x804000, "Raft", waRaft, ZERO, RESERVED, 0, sgNone,NODESCYET)
-WALL( '.', 0x804000, "Raft", waRaftWarp, ZERO, RESERVED, 0, sgNone,NODESCYET)
-WALL( '#', 0x804000, "Crow's Nest", waRaftWall, WF_WALL | WF_HIGHWALL, RESERVED, 0, sgNone,
-  "Pirates and other sailors can climb up here."
+WALL( '.', 0x804000, "raft", waRaft, ZERO, RESERVED, 0, sgNone, "A shoddily built raft, carrying Pirates and Vikings.")
+WALL( '.', 0x804000, "raft", waRaftWarp, ZERO, RESERVED, 0, sgNone, "A shoddily built raft, carrying Ratlings.")
+WALL( '#', 0x804000, "crow's nest", waRaftWall, WF_WALL | WF_HIGHWALL | WF_STDTREE , RESERVED, 0, sgNone,
+  "Sailors such as pirates, vikings, and ratlings can climb up here. While on the crow's nest, "
+  "they are protected from any melee attacks, but they cannot attack either unless they have a ranged weapon "
+  "such as a bow. However the crow's nest isn't very strong and can be chopped down easily, stunning any "
+  "sailor on top!"
   )
-WALL( '#', 0x804000, "Crow's Nest", waRaftWarpWall, WF_WALL | WF_HIGHWALL, RESERVED, 0, sgNone,
-  "Pirates and other sailors can climb up here."
+WALL( '#', 0x804000, "crow's nest", waRaftWarpWall, WF_WALL | WF_HIGHWALL | WF_STDTREE, RESERVED, 0, sgNone,
+  "Sailors such as pirates, vikings, and ratlings can climb up here. While on the crow's nest, "
+  "they are protected from any melee attacks, but they cannot attack either unless they have a ranged weapon "
+  "such as a bow. However the crow's nest isn't very strong and can be chopped down easily, stunning any "
+  "sailor on top!"
   )
-WALL( '#', 0x404040, "Cannon", waCannon, WF_WALL | WF_HIGHWALL, RESERVED, 0, sgNone, NODESCYET)
+WALL( '#', 0x404040, "cannon", waCannon, WF_WALL | WF_HIGHWALL, RESERVED, 0, sgNone,
+  "A cannon! Any cannons operated by a sailor in range of the Rogue will begin targeting them! If the target remains "
+  "stationary, it will lock on and fire a cannonball the next turn which will start a fire. "
+  "Unlike crow's nests, these cannot be broken down with conventional weapons, though they are still flammable."
+  )
 
 //shmupspecials
 MONSTER( '@', 0xC0C0C0, "Rogue", moPlayer, CF_FACE_UP | CF_PLAYER, RESERVED, moNone, "In the Shoot'em Up mode, you are armed with thrown Knives.")

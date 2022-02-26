@@ -54,6 +54,13 @@ EX void createNoise(int t) {
   if(shmup::on) shmup::visibleFor(100 * t);
   }
 
+EX bool destructibleWithMonster(cell *c, bool useorb) {
+  if(useorb)
+    return (!c->monst || isLeader(c->monst)) && (among(c->wall, waRaftWall, waRaftWarpWall) || (c->wall == waCannon && markOrb(itOrbSlaying)));
+  else
+    return (!c->monst || isLeader(c->monst)) && (among(c->wall, waRaftWall, waRaftWarpWall) || (c->wall == waCannon && items[itOrbSlaying]));
+  }
+
 #if HDR
 enum eLastmovetype { lmSkip, lmMove, lmAttack, lmPush, lmTree, lmInstant };
 extern eLastmovetype lastmovetype, nextmovetype;
@@ -342,6 +349,8 @@ bool pcmove::after_move() {
   save_memory();
   
   check_total_victory();
+
+  shipwreck::checkcannons();
 
   if(items[itWhirlpool] && cwt.at->land != laWhirlpool)
     achievement_gain_once("WHIRL1");
@@ -805,8 +814,8 @@ void pcmove::tell_why_cannot_attack() {
     addMessage(XLAT("You cannot attack your own mount!"));
   else if(checkOrb(c2->monst, itOrbShield))
     addMessage(XLAT("A magical shield protects %the1!", c2->monst));
-  else if(isLeader(c2->monst) && (c2->wall == waCannon || c2->wall == waRaftWall)) 
-    addMessage(XLAT("%The1 is too high to reach!", c2->monst));
+  else if(isLeader(c2->monst) && (c2->wall == waCannon)) 
+    addMessage(XLAT("%The1 can't be reached and %the2 can't be destroyed!", c2->monst, c2->wall));
   else
     addMessage(XLAT("For some reason... cannot attack!"));
   }
@@ -853,12 +862,12 @@ bool pcmove::after_escape() {
     c2->wall == waBigTree ||
     c2->wall == waSmallTree ||
     (c2->wall == waShrub && items[itOrbSlaying]) ||
-    c2->wall == waMirrorWall;
+    c2->wall == waMirrorWall || destructibleWithMonster(c2, false);
   if(attackable && markOrb(itOrbAether) && c2->wall != waMirrorWall)
     attackable = false;
   bool nm; nm = attackable;
   if(forcedmovetype == fmAttack) attackable = true;
-  attackable = attackable && (!c2->monst || isFriendly(c2));
+  attackable = attackable && (!c2->monst || isFriendly(c2) || destructibleWithMonster(c2, false));
   attackable = attackable && !nonAdjacentPlayer(cwt.at,c2);
   
   bool dont_attack = items[itOrbFlash] || items[itOrbLightning];
@@ -890,6 +899,23 @@ bool pcmove::after_escape() {
       playSound(c2, "hit-axe" + pick123());
       changes.ccell(c2);
       c2->wall = waSmallTree;
+      return swing();
+      }
+    else if(destructibleWithMonster(c2, true)) {
+      drawParticles(c2, winf[c2->wall].color, 4);
+      if(c2->monst) {
+        addMessage(XLAT("You break %the1 and %the2 falls.", c2->wall, c2->monst));
+        c2->stuntime = 2;
+        }
+      else
+        addMessage(XLAT("You break %the1.", c2->wall));
+      playSound(c2, "hit-axe" + pick123());
+      changes.ccell(c2);
+      if(isRaft(c2->wall))
+        c2->wall = (c2->wall == waRaftWarpWall) ? waRaftWarp : waRaft;
+      else
+        c2->wall = waNone;
+      spread_plague(cwt.at, c2, mi.d, moPlayer);
       return swing();
       }
     if(!peace::on) {
@@ -1481,13 +1507,22 @@ EX void produceGhost(cell *c, eMonster victim, eMonster who) {
 EX bool swordAttack(cell *mt, eMonster who, cell *c, int bb) {
   eMonster m = c->monst;
   if(c->wall == waCavewall) markOrb(bb ? itOrbSword2: itOrbSword);
-  if(among(c->wall, waSmallTree, waBigTree, waRose, waCTree, waVinePlant, waBigBush, waSmallBush, waSolidBranch, waWeakBranch, waShrub)
+  if(among(c->wall, waSmallTree, waBigTree, waRose, waCTree, waVinePlant, waBigBush, waSmallBush, waSolidBranch, waWeakBranch, waShrub, waRaftWall, waRaftWarpWall, waCannon)
     || thruVine(mt, c)) {
     changes.ccell(c);
     playSound(NULL, "hit-axe"+pick123());
     markOrb(bb ? itOrbSword2: itOrbSword);
     drawParticles(c, winf[c->wall].color, 16);
-    addMessage(XLAT("You chop down %the1.", c->wall));
+    if(isRaft(c->wall)) {
+      if(c->monst) {
+        addMessage(XLAT("You break %the1 and %the2 falls.", c->wall, c->monst));
+        c->stuntime = 2;
+        }
+      else
+        addMessage(XLAT("You break %the1.", c->wall));
+      }
+    else
+      addMessage(XLAT("You chop down %the1.", c->wall));
     destroyHalfvine(c);
     c->wall = waNone;
     }

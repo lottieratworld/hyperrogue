@@ -2083,7 +2083,7 @@ EX void movemonsters() {
   
   #if CAP_COMPLEX2
   ambush::check_state();
-  shipwreck::movetracker(playerpos(1));
+  shipwreck::movetracker();
   #endif
 
   sagefresh = true;

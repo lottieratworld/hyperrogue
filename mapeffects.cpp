@@ -413,6 +413,12 @@ EX bool makeflame(cell *c, int timeout, bool checkonly) {
     c->wparam = 3;
     return false;
     }
+  else if(c->wall == waCannon) {
+    if(checkonly) return true;
+    c->wall = waFire;
+    explosion(c,timeout,timeout);
+    shipwreck::cannons--;
+    }
   else {
     eWall w = eternalFire(c) ? waEternalFire : waFire;
     if(!checkonly) drawFireParticles(c, 10);

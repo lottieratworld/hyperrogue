@@ -2033,10 +2033,6 @@ EX bool drawMonsterType(eMonster m, cell *where, const shiftmatrix& V1, color_t 
       ShadowV(V, cgi.shYeti);
       queuepoly(VLEG, cgi.shRatTail, darkena(col, 0, 0xFF));
       queuepoly(VBODY * VBS, cgi.shYeti, darkena(col, 1, 0xFF));
-      
-      if(!peace::on && m == moRatlingBowman) {
-        queuepoly(VBODY * VBS, cgi.shBow, darkena(col, 0, 0xFF));
-        }
   
       float t = sintick(1000, where ? where->cpdist*M_PI : 0);
       int eyecol = t > 0.92 ? 0xFF0000 : 0;
@@ -2048,6 +2044,9 @@ EX bool drawMonsterType(eMonster m, cell *where, const shiftmatrix& V1, color_t 
         queuepoly(VHEAD, cgi.shWolf3, darkena(0x202020, 0, 0xFF));
         if(m == moRatlingAvenger) queuepoly(VHEAD1, cgi.shRatCape1, 0x303030FF);
         if(m == moRatlingBowman) queuepoly(VHEAD1, cgi.shRatCape1, 0x364800FF);
+        if(!peace::on && m == moRatlingBowman) {
+          queuepoly(VBODY * VBS, cgi.shBow, darkena(col, 0, 0xFF));
+          }
         }
 #if MAXMDIM >= 4
       else {
@@ -4135,6 +4134,7 @@ EX int ceiling_category(cell *c) {
     case laDual:
     case laWestWall:
     case laAsteroids:
+    case laShipwreck:
       return 1;
     
     case laPower:

@@ -1451,13 +1451,30 @@ EX namespace shipwreck {
   EX bool tracking;
   EX cell *trackcell;
   EX int firestage;
-  EX void movetracker(cell *c) {
-    if(havewhat&HF_CANNON){
+  EX int cannons;
+  EX void checkcannons() {
+    if(!cannons && tracking) {
+//      addMessage(XLAT("You've escaped the cannons!"));
+      tracking = false;
+      firestage = 0;
+      }
+    }
+  EX void movetracker() {
+    if(cannons){
       if(!tracking) {
-        addMessage(XLAT("You see a cannon in the distance..."));
+        if(!multi::activePlayers()) return;
+//        addMessage(XLAT("You see a cannon in the distance..."));
         tracking = true;
+        cell *c;
+        while(true) {
+          int p = hrand(multi::players) - 1;
+          if(multi::playerActive(p)) {
+            c = playerpos(p);
+            break;
+            }
+          }
         cell *c1 = c->move(hrand(c->type));
-        for(int i=0; i<3; i++) {
+        for(int i=0; i<2; i++) {
           while (true){
             cell *c2 = c1->move(hrand(c1->type));
             if(c2->cpdist > c1->cpdist) {
@@ -1480,11 +1497,11 @@ EX namespace shipwreck {
             break;
 
           case 1:
-            addMessage(XLAT("The cannon has been reloaded!"));
+//            addMessage(XLAT("The cannon has been reloaded!"));
             firestage--;
             break;
             
-          case 0:
+          case 0: 
             if(trackcell->cpdist > 0) {
               while (true){
                 cell *c1 = trackcell->move(hrand(trackcell->type));
@@ -1506,7 +1523,7 @@ EX namespace shipwreck {
         }
       }
     else if(tracking) {
-      addMessage(XLAT("You've escaped the cannons!"));
+//      addMessage(XLAT("You've escaped the cannons!"));
       tracking = false;
       firestage = 0;
       }

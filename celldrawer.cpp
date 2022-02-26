@@ -97,7 +97,7 @@ void celldrawer::setcolors() {
     wcol = fcol = winf[waMineUnknown].color;
 
   // water colors
-  if(isWateryOrBoat(c) || c->wall == waReptileBridge) {
+  if(isWateryOrBoat(c) || c->wall == waReptileBridge || isRaft(c->wall)) {
     if(c->land == laOcean)
       fcol = 
         #if CAP_FIELD
@@ -133,6 +133,8 @@ void celldrawer::setcolors() {
       fcol = 0x0000C0 + int((warptype(c)?30:-30) * sintick(600));
     else if(c->land == laShipwreck)
       fcol = 0x007050;
+    else if(isRaft(c->wall))
+      fcol = 0x0000A0;
     else
       fcol = wcol;
     }
@@ -491,7 +493,7 @@ void celldrawer::setcolors() {
   switch(c->wall) {
     case waSulphur: case waSulphurC: case waPlatform: case waMercury: case waDock:
     case waAncientGrave: case waFreshGrave: case waThumperOn: case waThumperOff: case waBonfireOff:
-    case waRoundTable: case waExplosiveBarrel: case waRaft: case waRaftWall: case waCannon:
+    case waRoundTable: case waExplosiveBarrel:
       // floors become fcol
       fcol = wcol;
       break;
@@ -564,8 +566,9 @@ void celldrawer::setcolors() {
       if(c->land == laCanvas) wcol = c->landparam;
       else wcol = (0x125628 * c->wparam) & 0xFFFFFF;
 
-    case waRaftWarp: case waRaftWarpWall:
-      fcol = wcol = warptype(c) ? winf[waRaft].color : darkenedby(winf[waRaft].color, 1);
+    case waRaft: case waRaftWarp: case waRaftWall: case waRaftWarpWall: case waCannon:
+      if(!chasmgraph(c))
+        fcol = wcol = (among(c->wall, waRaftWarp, waRaftWarpWall) && !warptype(c)) ? darkenedby(winf[waRaft].color, 1) : winf[waRaft].color;
       break;
   
     default:
@@ -703,7 +706,7 @@ void celldrawer::draw_wall() {
     color_t wcol2 = gradient(0, wcol0, 0, .8, 1);
     draw_shapevec(c, V, qfi.fshape->levels[SIDE_WALL], darkena(wcol, 0, 0xFF), PPR::WALL);
     forCellIdEx(c2, i, c) 
-      if(!highwall(c2) || conegraph(c2) || c2->wall == waClosedGate || fake::split())
+      if(!highwall(c2) || conegraph(c2) || c2->wall == waClosedGate || fake::split() || isRaft(c2->wall))
         placeSidewall(c, i, SIDE_WALL, V, darkena(wcol2, fd, 255));
 
     draw_wallshadow();
@@ -777,7 +780,7 @@ void celldrawer::draw_wall() {
         }
       else {
         forCellIdEx(c2, i, c) 
-          if(!highwall(c2) || conegraph(c2) || neon_mode == eNeon::illustration) {
+          if(!highwall(c2) || conegraph(c2) || neon_mode == eNeon::illustration || isRaft(c2->wall)) {
           if(placeSidewall(c, i, SIDE_WALL, V, darkena(wcol2, fd, alpha))) break;
           }
         }
@@ -1192,7 +1195,7 @@ void celldrawer::set_land_floor(const shiftmatrix& Vf) {
 
     case laShipwreck:
       set_floor(cgi.shDesertFloor);
-      if(isRaft(c->wall)) set_floor(cgi.shFloor);
+//      if(isRaft(c->wall)) set_floor(cgi.shFloor);
       break;
 
     case laBull:
@@ -1584,21 +1587,55 @@ void celldrawer::draw_features() {
         queuepoly(V, cgi.shTriangle, darkena(wcol, fd, 0xFF));
       break;
 
-    case waRaftWall: case waRaftWarpWall: case waCannon:
-      if(true) {
-        const int layers = 2 << detaillevel;
-        dynamicval<const hpcshape*> ds(qfi.shape, &cgi.shCircleFloor);
-        dynamicval<transmatrix> dss(qfi.spin, Id);
-        for(int z=1; z<=layers; z++) {
-          double zg = zgrad0(0, geom3::actual_wall_height(), z, layers);
-          draw_qfi(c, xyzscale(V, (z == layers) ? zg*0.8 : zg*0.5, zg),
-            darkena(gradient(0x542C07, 0xA05201, 0, z, layers), fd, 0xFF), PPR::WALL3+z-layers+2);
+    case waRaft: case waRaftWarp: case waRaftWall: case waRaftWarpWall: case waCannon: {
+      Vboat = V;
+//      dynamicval<qfloorinfo> qfi2(qfi, qfi);
+      color_t col = winf[waRaft].color;
+      if(isWarped(c))
+        col = warptype(c) ? winf[waRaft].color : darkenedby(winf[waRaft].color, 1);
+      if(GDIM == 3 && qfi.fshape && among(c->wall, waRaftWall, waRaftWarpWall, waCannon)) {
+        if(c->wall == waCannon) col = winf[waCannon].color;
+        draw_shapevec(c, V, qfi.fshape->levels[1], darkena(col, fd, 0xFF), PPR::REDWALL);
+        floorShadow(c, V, SHADOW_SL);
+        forCellIdEx(c2, i, c) {
+          if(placeSidewall(c, i, SIDE_SLEV, V, darkena(col, fd, 0xFF))) break;
           }
-        dynamicval<color_t> p(poly_outline, OUTLINE_TRANS);
-        draw_qfi(c, xyzscale(V, 0.8, 1), SHADOW_WALL, PPR::WALLSHADOW);
-      }
-//      draw_floorshape(c, mmscale(V, cgi.WALL), cgi.shFloor, darkena(wcol, fd, 0xFF), PPR::WALL3+3);
+        }
+      else if(GDIM == 2) {
+        chasmg = 0;
+        if(isWarped(c)) {
+          set_maywarp_floor();
+          draw_floorshape(c, V, cgi.shTriheptaFloor, darkena(col, fd, 0xFF), PPR::FLOOR);
+          }
+        else {
+          set_floor(cgi.shFullFloor);
+          draw_floorshape(c, V, cgi.shFullFloor, darkena(col, fd, 0xFF), PPR::FLOOR);
+          }
+        forCellIdEx(c2, i, c) if(chasmgraph(c2)) 
+          if(placeSidewall(c, i, SIDE_LAKE, V, darkena(gradient(0, col, 0, .8, 1), fd, 0xFF))) break;
+        chasmg = 1;
+        if(among(c->wall, waRaftWall, waRaftWarpWall, waCannon)) {
+          Vboat = V * zpush((1+cgi.WALL)/2);
+          const int layers = 2 << detaillevel;
+          dynamicval<const hpcshape*> ds(qfi.shape, &cgi.shCircleFloor);
+          dynamicval<transmatrix> dss(qfi.spin, Id);
+          for(int z=1; z<=layers; z++) {
+            double zg = zgrad0(0, geom3::actual_wall_height(), z, layers);
+            if(c->wall == waCannon)
+              draw_qfi(c, xyzscale(V, zg*0.8, zg),
+                darkena(gradient(0x202020, 0x404040, 0, z, layers), fd, 0xFF),
+                PPR::WALL+z-layers);
+            else
+              draw_qfi(c, xyzscale(V, (z == layers) ? zg*0.8 : zg*0.5, zg),
+                darkena(gradient(0x542C07, 0xA05201, 0, z, layers), (c->wall == waRaftWarpWall && !warptype(c)) ? fd + 1 : fd, 0xFF),
+                PPR::WALL+z-layers);
+            }
+          dynamicval<color_t> p(poly_outline, OUTLINE_TRANS);
+          draw_qfi(c, xyzscale(V, 0.9, 1), SHADOW_WALL, PPR::WALLSHADOW);
+          }
+        }
       break;
+      }
   
     default: {
       wa_default:
@@ -2064,7 +2101,7 @@ void celldrawer::draw_wall_full() {
         draw_floorshape(c, mmscale(V, cgi.SLEV[2]), cgi.shRoseFloor, 0x80406080, PPR::LIZEYE);
       }
     if(GDIM == 2 && shipwreck::tracking && c == shipwreck::trackcell) {
-      draw_floorshape(c, mmscale(V, cgi.SLEV[2]), cgi.shChargedFloor, ((shipwreck::firestage > 0) ? 0xFFFF0000 : 0xFF000000) + (0x70 - sintick(400) * 0x40), PPR::LIZEYE);
+      draw_floorshape(c, mmscale(V, cgi.FLOOR) * spintick(300), cgi.shMFloor, ((shipwreck::firestage > 0) ? 0xFFFF0000 : 0xFF000000) + int(0x70 - sintick(200) * 0x50), PPR::WALL3+3);
       }
 
     if(c->wall == waChasm) {
@@ -2130,7 +2167,7 @@ void celldrawer::draw_wall_full() {
         queuepoly(Vf, cgi.shHeptaMarker, darkena(fcol, 0, 0x40));
       }
     
-    else if(isWarped(c) || is_nice_dual(c))
+    else if((isWarped(c) || is_nice_dual(c)) && !isRaft(c->wall))
       set_maywarp_floor(); 
 
     else if(wmplain) {
@@ -2883,7 +2920,7 @@ void celldrawer::set_maywarp_floor() {
       return;
       }
     auto si = patterns::getpatterninfo(c, patterns::PAT_TYPES, 0);
-    if(si.id == 0 || si.id == 1)
+    if(isRaft(c->wall) || si.id == 0 || si.id == 1)
       set_floor(cgi.shTriheptaFloor);
     else if(si.id >= 14)
       set_floor(cgi.shFloor);

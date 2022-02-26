@@ -45,7 +45,6 @@ namespace hr {
 #define HF_JUMP       Flag(32)
 #define HF_DICE       Flag(33)
 #define HF_BOW        Flag(34)
-#define HF_CANNON     Flag(35)
 #endif
 
 EX flagtype havewhat, hadwhat;
@@ -292,6 +291,7 @@ EX void bfs() {
   tempmonsters.clear(); targets.clear(); 
   statuecount = 0;
   wetslime = 0;
+  shipwreck::cannons = 0;
   hexsnakes.clear(); 
 
   hadwhat = havewhat;
@@ -438,7 +438,7 @@ EX void bfs() {
 
         if(c2->wall == waRose) havewhat |= HF_ROSE;
 
-        if(c2->wall == waCannon && isLeader(c2->monst) && c2->cpdist <= 5) havewhat |= HF_CANNON;
+        if(c2->wall == waCannon && isLeader(c2->monst) && c2->cpdist <= 5) shipwreck::cannons++;
         
         if((hadwhat & HF_ROSE) && (rosemap[c2] & 3)) havewhat |= HF_ROSE;
         
