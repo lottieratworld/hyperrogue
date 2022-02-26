@@ -772,8 +772,6 @@ void pcmove::tell_why_cannot_attack() {
     addMessage(XLAT("You cannot attack Sandworms directly!"));
   else if(c2->monst == moHexSnake || c2->monst == moHexSnakeTail)
     addMessage(XLAT("You cannot attack Rock Snakes directly!"));
-  else if(c2->monst == moEel || c2->monst == moEelTail || c2->monst == moEelWait)
-    addMessage(XLAT("You cannot attack Eels directly!"));
   else if(nonAdjacentPlayer(c2, cwt.at))
     addMessage(XLAT("You cannot attack diagonally!"));
   else if(thruVine(c2, cwt.at))

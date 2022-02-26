@@ -532,8 +532,6 @@ EX bool passable_for(eMonster m, cell *w, cell *from, flagtype extra) {
     return passable(w, from, extra | P_ISFRIEND | P_USEBOAT);
   if(isGolemOrKnight(m))
     return passable(w, from, extra | P_ISFRIEND);
-  if(m == moEel || m == moEelWait || m == moEelTail)
-    return sharkpassable(w, from);
   if(isWorm(m))
     return passable(w, from, extra) && !cellUnstable(w) && ((m != moWorm && m != moTentacle) || !cellEdgeUnstable(w));
   if(m == moVoidBeast)

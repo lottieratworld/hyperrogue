@@ -459,13 +459,12 @@ EX void fixWormBug(cell *c) {
   if(c->monst == moWormtail) c->monst = moWormwait;
   if(c->monst == moTentacletail || c->monst == moTentacleGhost) c->monst = moTentacle;
   if(c->monst == moHexSnakeTail) c->monst = moHexSnake;
-  if(c->monst == moEelTail) c->monst = moEelWait;
   }
 
 EX bool isWormhead(eMonster m) {
   return among(m, 
     moTentacle, moWorm, moHexSnake, moWormwait, moTentacleEscaping,
-    moTentaclewait, moDragonHead, moEel, moEelWait);   
+    moTentaclewait, moDragonHead);   
   }
 
 EX cell *worm_tohead(cell *c) {

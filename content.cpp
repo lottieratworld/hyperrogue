@@ -1750,9 +1750,6 @@ MONSTER( 'R', 0x806040, "Ratling Hunter", moRatlingBowman, CF_FACE_UP | CF_LEADE
   "as long as you keep moving and attacking they can't hit you. This unfortunately means you can't strategically skip "
   "turns while they are around, which can be especially problematic with other monsters around."
   )
-MONSTER( 'S', 0x208020, "Sea Serpent", moEel, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_IGNORE_SMELL | CF_MULTITILE | CF_WORM | CF_HIGH_THREAT, RESERVED, moNone, serpentdesc )
-MONSTER( 's', 0x156015, "Sea Serpent Tail", moEelTail, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, serpentdesc )
-MONSTER( 'S', 0x156015, "Sea Serpent W", moEelWait, ZERO | CF_NOGHOST | CF_NOBLOW | CF_MOUNTABLE | CF_MULTITILE | CF_WORM | CF_INACTIVE | CF_SPAM, RESERVED, moNone, serpentdesc )
 
 WALL( '.', 0x804000, "raft", waRaft, ZERO, RESERVED, 0, sgNone, "A shoddily built raft, carrying Pirates and Vikings.")
 WALL( '.', 0x804000, "raft", waRaftWarp, ZERO, RESERVED, 0, sgNone, "A shoddily built raft, carrying Ratlings.")
