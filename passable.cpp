@@ -137,7 +137,7 @@ EX bool passable(cell *w, cell *from, flagtype flags) {
   bool revdir = (flags&P_REVDIR);
   bool vrevdir = revdir ^ bool(flags&P_VOID);
 
-  if(from && from != w && nonAdjacent(from, w) && !F(P_IGNORE37 | P_BULLET)) return false;
+  if(from && from != w && nonAdjacent(from, w) && !F(P_IGNORE37 | P_BULLET) && from->monst != moRatlingMage) return false;
   
   if((isWateryOrBoat(w) || w->wall == waShallow) && F(P_WATERCURSE))
     return false;
@@ -524,12 +524,10 @@ EX bool passable_for(eMonster m, cell *w, cell *from, flagtype extra) {
     return passable(w, from, extra | P_FLYING | P_WINTER);
   if(m == moAirElemental)
     return passable(w, from, extra | P_FLYING | P_WIND);
-  if(m == moRatlingMage)
-    if(from && from->wall == waBoat && from->item == itCoral && !from->monst) return false; // don't move Corals!
-    return passable(w, from, extra | P_LEADER | P_IGNORE37);
   if(isLeader(m)) {
     if(from && from->wall == waBoat && from->item == itCoral && !from->monst) return false; // don't move Corals!
-    return passable(w, from, extra | P_LEADER);
+    if(m == moRatlingMage) return passable(w, from, extra | P_LEADER | P_IGNORE37);
+    else return passable(w, from, extra | P_LEADER);
     }
   if(isPrincess(m))
     return passable(w, from, extra | P_ISFRIEND | P_USEBOAT);
