@@ -1744,11 +1744,15 @@ ITEM('/', 0x707070, "Lead Figurine", itShipwreck, IC_TREASURE, ZERO | IF_FIREPRO
   "the lead seems to have strange properties which might be of interest to alchemists and researchers back home..."
   )
 
-MONSTER( 'R', 0x806040, "Ratling Hunter", moRatlingBowman, CF_FACE_UP | CF_LEADER | CF_RATLING, RESERVED, moPirate, 
+MONSTER( 'R', 0x806040, "Ratling Hunter", moRatlingBowman, CF_FACE_UP | CF_LEADER | CF_RATLING | CF_HIGH_THREAT, RESERVED, moPirate, 
   "A ratling from the Warped Coast, equipped with a bow that can shoot at you from a range! "
   "Luckily they are a bad shot. Additionally they are overly confident in their skills and always go for headshots, "
   "as long as you keep moving and attacking they can't hit you. This unfortunately means you can't strategically skip "
   "turns while they are around, which can be especially problematic with other monsters around."
+  )
+
+MONSTER( 'M', 0x806040, "Ratling Mage of the Warp", moRatlingMage, CF_FACE_UP | CF_LEADER | CF_RATLING | CF_ATTACK_NONADJACENT | CF_HIGH_THREAT, RESERVED, moPirate, 
+  "The master of world warping magic!"
   )
 
 WALL( '.', 0x804000, "raft", waRaft, ZERO, RESERVED, 0, sgNone, "A shoddily built raft, carrying Pirates and Vikings.")

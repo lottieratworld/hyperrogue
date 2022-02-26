@@ -106,6 +106,8 @@ EX void moveEffect(const movei& mi, eMonster m) {
   #if CAP_COMPLEX2
   if(isDie(m) && mi.proper())
     dice::roll(mi);
+
+  if(cf && m == moRatlingMage) shipwreck::moveWarper(cf,ct);
   #endif
   }
 

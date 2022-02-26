@@ -351,6 +351,7 @@ bool pcmove::after_move() {
   check_total_victory();
 
   shipwreck::checkcannons();
+  shipwreck::updateWarpMap();
 
   if(items[itWhirlpool] && cwt.at->land != laWhirlpool)
     achievement_gain_once("WHIRL1");

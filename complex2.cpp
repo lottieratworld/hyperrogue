@@ -1452,6 +1452,9 @@ EX namespace shipwreck {
   EX cell *trackcell;
   EX int firestage;
   EX int cannons;
+  EX vector<cell*> warpers;
+  EX set<cell*> warpmap;
+  EX int warpupdates = 0;
   EX void checkcannons() {
     if(!cannons && tracking) {
 //      addMessage(XLAT("You've escaped the cannons!"));
@@ -1528,6 +1531,58 @@ EX namespace shipwreck {
       firestage = 0;
       }
     }
+  EX bool newWarper(cell *c) {
+    warpers.push_back(c);
+    warpupdates++;
+    return true;
+    }
+  EX bool removeWarper(cell *c) {
+    for(int i=0; i<isize(warpers); i++) {
+      if(c == warpers.at(i)) { warpers.erase(warpers.begin()+i); warpupdates++; return true; }
+      }
+    return false;
+    }
+  EX bool moveWarper(cell *c, cell *c2) {
+    for(int i=0; i<isize(warpers); i++) {
+      if(c == warpers.at(i)) { warpers.at(i) = c2; warpupdates++; return true; }
+      }
+    return false;
+    }
+  EX void updateWarpMap() {
+    if(!warpupdates) return;
+    warpmap.clear();
+    for(int i=0; i<isize(warpers); i++) {
+      cell *c = warpers.at(i);
+      if(c->monst != moRatlingMage) {
+        removeWarper(c);
+        updateWarpMap();
+        return;
+        }
+      celllister cl(c, 4, 1000000, NULL);
+      for(cell *ct: cl.lst)
+        warpmap.insert(ct);
+      }
+    warpupdates = 0;
+    }
+  EX bool inWarperRange(cell *c) {
+    return warpmap.count(c);
+    }
+    
+  int hook = addHook(hooks_removecells, 0, [] () {
+    bool allclear = false;
+    while(!allclear){
+      allclear = true;
+      for(int i=0; i<isize(warpers); i++)
+        if(is_cell_removed(warpers.at(i))){
+          warpers.erase(warpers.begin()+i);
+          allclear = false;
+          break;
+          }
+      }
+    }) + addHook(hooks_clearmemory, 0, [] () {
+    warpers.clear();
+    warpmap.clear();
+    });
 EX }
 
 }

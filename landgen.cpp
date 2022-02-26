@@ -2754,7 +2754,7 @@ EX void giantLandSwitch(cell *c, int d, cell *from) {
             }
           }
         if(among(c->wall, waRaft, waRaftWarp, waRaftWall, waRaftWarpWall, waSea) &&
-          hrand(c->wall == waSea ? 20000 : 3000) < 100 + PT(kills[moPirate] + kills[moViking] + kills[moRatling] + kills[moRatlingBowman], 100) && notDippingFor(itShipwreck))
+          hrand(c->wall == waSea ? 20000 : 3000) < 100 + PT(kills[moPirate] + kills[moViking] + kills[moRatling] + kills[moRatlingBowman] + kills[moRatlingMage], 100) && notDippingFor(itShipwreck))
           c->item = itShipwreck;
         if(c->wall == waCannon) c->monst = pick(moViking, moPirate);
         else if(c->wall == waRaftWarpWall && hrand_monster(2500) < 300 + items[itShipwreck] + 2 * yendor::hardness()) c->monst = moRatlingBowman;
@@ -2763,6 +2763,10 @@ EX void giantLandSwitch(cell *c, int d, cell *from) {
           }
         else if(among(c->wall, waRaftWarp, waRaftWarpWall) && hrand_monster(3000) < 200 + items[itShipwreck] + 2 * yendor::hardness() && !safety) {
           c->monst = pick(moRatling, moRatlingBowman);
+          }
+        else if(among(c->wall, waRaftWarp, waRaftWarpWall) && hrand_monster(6000) < items[itShipwreck] + 2 * yendor::hardness() && !safety) {
+          c->monst = moRatlingMage;
+          shipwreck::newWarper(c);
           }
         else if(c->wall == waSea && hrand_monster(20000) < 10 + items[itShipwreck] + 2 * yendor::hardness() && !safety) {
 //          if(items[itShipwreck] >= 5 && hrand(100) <= 10 && !peace::on)

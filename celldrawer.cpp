@@ -2167,7 +2167,7 @@ void celldrawer::draw_wall_full() {
         queuepoly(Vf, cgi.shHeptaMarker, darkena(fcol, 0, 0x40));
       }
     
-    else if((isWarped(c) || is_nice_dual(c)) && !isRaft(c->wall))
+    else if((isWarped(c) || is_nice_dual(c)) && (!isRaft(c->wall) || nonRaftWarped(c)))
       set_maywarp_floor(); 
 
     else if(wmplain) {

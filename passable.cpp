@@ -38,7 +38,7 @@ EX bool boatGoesThrough(cell *c) {
     c->wall == waDeadfloor || c->wall == waCIsland || c->wall == waCIsland2 ||
     c->wall == waMineUnknown || c->wall == waMineMine || c->wall == waMineOpen ||
     c->wall == waBonfireOff || c->wall == waFire || c->wall == waPartialFire ||
-    c->wall == waArrowTrap || c->wall == waShallow;
+    c->wall == waArrowTrap || c->wall == waShallow || c->wall == waRaft || c->wall == waRaftWarp;
   }
 
 EX void become_water(cell *c) {
@@ -524,6 +524,9 @@ EX bool passable_for(eMonster m, cell *w, cell *from, flagtype extra) {
     return passable(w, from, extra | P_FLYING | P_WINTER);
   if(m == moAirElemental)
     return passable(w, from, extra | P_FLYING | P_WIND);
+  if(m == moRatlingMage)
+    if(from && from->wall == waBoat && from->item == itCoral && !from->monst) return false; // don't move Corals!
+    return passable(w, from, extra | P_LEADER | P_IGNORE37);
   if(isLeader(m)) {
     if(from && from->wall == waBoat && from->item == itCoral && !from->monst) return false; // don't move Corals!
     return passable(w, from, extra | P_LEADER);

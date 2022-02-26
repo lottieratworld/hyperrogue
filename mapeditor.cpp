@@ -1388,6 +1388,11 @@ EX namespace mapeditor {
           if(!dice::generate_random(c)) c->monst = moNone;
           }
 
+        if(c->monst == moRatlingMage && c->monst != last) {
+          shipwreck::newWarper(c); shipwreck::updateWarpMap(); }
+        else if(last == moRatlingMage && c->monst != last) {
+          shipwreck::removeWarper(c); shipwreck::updateWarpMap(); }
+
         mirror::destroyKilled();
         break;
         }

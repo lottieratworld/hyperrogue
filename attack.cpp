@@ -721,6 +721,13 @@ EX void killMonster(cell *c, eMonster who, flagtype deathflags IS(0)) {
   // note: an Orb appears underwater!
   if(m == moWaterElemental && c->item == itNone)
     c->item = itOrbWater;
+  if(m == moRatlingMage) {
+    changes.value_keep(shipwreck::warpers);
+    changes.value_keep(shipwreck::warpupdates);
+    shipwreck::removeWarper(c);
+    if(c->item == itNone && c->wall != waChasm)
+      c->item = itOrb37;
+    }
 
   if(m == moPirate && isOnCIsland(c) && c->item == itNone && (
       eubinary ||
