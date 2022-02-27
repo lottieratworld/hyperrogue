@@ -69,9 +69,9 @@ hyperpoint portal_data::to_poco(hyperpoint h) const {
     ld z = product_decompose(h).first;
     h /= exp(z);
     auto h1 = h;
-    h[0] = asin_auto(h1[1]);
+    h[2] = asin_auto_clamp(h1[0]);
     h[1] = z;
-    h[2] = asin_auto_clamp(h1[0] / cos_auto(h[0]));
+    h[0] = asin_auto_clamp(h1[1] / cos_auto(h[2]));
     h[3] = 1;
     return h;
     }
@@ -91,6 +91,10 @@ hyperpoint portal_data::to_poco(hyperpoint h) const {
   else {
     h = T * h;
     h /= h[3];
+    if(sphere)
+      h[2] /= sqrt(1+h[0]*h[0]+h[1]*h[1]);
+    if(hyperbolic)
+      h[2] /= sqrt(1-h[0]*h[0]-h[1]*h[1]);
     return h;
     }
   }
@@ -109,8 +113,8 @@ hyperpoint portal_data::from_poco(hyperpoint h) const {
     }
   else if(prod && kind == 0) {
     auto h0 = h;
-    h[0] = sin_auto(h0[2]) * cos_auto(h0[0]);
-    h[1] = sin_auto(h0[0]);
+    h[0] = sin_auto(h0[2]);
+    h[1] = sin_auto(h0[0]) * cos_auto(h0[2]);
     h[2] = cos_auto(h0[0]) * cos_auto(h0[2]);
     h[3] = 1;
     return iT * h * exp(h0[1]);
@@ -126,13 +130,17 @@ hyperpoint portal_data::from_poco(hyperpoint h) const {
     }
   else {
     h[3] = 1;
+    if(sphere)
+      h[2] *= sqrt(1+h[0]*h[0]+h[1]*h[1]);
+    if(hyperbolic)
+      h[2] *= sqrt(1-h[0]*h[0]-h[1]*h[1]);
     return normalize(iT * h);
     }
   }
 
 EX portal_data make_portal(cellwalker cw, int spin) {
-  if(debug_portal & 33)
-    println(hlog, "working in: ", full_geometry_name());
+  if(debug_portal & 289)
+    println(hlog, "working in: ", full_geometry_name(), " wall no ", cw.spin, "/", cw.at->type);
   auto& ss = currentmap->get_cellshape(cw.at);
   auto fac = ss.faces_local[cw.spin];
   portal_data id;
@@ -251,6 +259,23 @@ EX portal_data make_portal(cellwalker cw, int spin) {
     for(int i=0; i<isize(fac); i++)
       println(hlog, "edge ", i, " length is ", hdist(fac[i], fac[(i+1)%isize(fac)]));
     println(hlog, "chosen edge is ", first, "--", second);
+    }
+
+  if(debug_portal & 256) {
+    println(hlog, "portal scale = ", id.scale);
+    auto res = [&] (ld x, ld y, ld z) {
+      hyperpoint h = hyperpoint(x, y, z, 1);
+      return id.from_poco(h);
+      };
+    for(int x=0; x<5; x++) {
+      println(hlog, "horizontal ", x, " = ", hdist(res(x*.1,0,0), res(x*.1+.001,0,0)));
+      println(hlog, "vertical   ", x, " = ", hdist(res(x*.1,0,0), res(x*.1,0.001,0)));
+      println(hlog, "deep       ", x, " = ", hdist(res(x*.1,0,0), res(x*.1,0,0.001)));
+      }
+    hyperpoint a = hyperpoint(.4, .2, .1, 1);
+    println(hlog, "a = ", a);
+    println(hlog, "b = ", id.from_poco(a));
+    println(hlog, "c = ", id.to_poco(id.from_poco(a)));
     }
 
   if(debug_portal & 1) {
@@ -516,11 +541,9 @@ EX const connection_data* through_portal() {
 
 EX void check_portal_movement() {
   auto p = through_portal();
-  ld c = camera_speed;
+
   if(p) {
     ld eps = 1e-5;
-    c /= p->id1.scale;
-    anims::cycle_length /= p->id1.scale;
     ld ss = pow(eps, -2);
 
     array<hyperpoint, 4> ds; /* camera, forward, upward */
@@ -580,9 +603,17 @@ EX void check_portal_movement() {
       println(hlog, "goal: at = ", xds[0], " det = ", dsdet(xds), " bt = ", bt::minkowski_to_bt(xds[0]));
       }
 
-    c *= p->id2.scale;
-    anims::cycle_length *= p->id2.scale;
-    camera_speed = c;
+    ld scale = p->id2.scale / p->id1.scale;
+
+    camera_speed *= scale;
+    anims::cycle_length *= scale;
+    #if CAP_VR
+    absolute_units_in_meters *= scale;
+    #endif
+    if(walking::eye_level != -1) walking::eye_level *= scale;
+
+    walking::floor_dir = -1;
+    walking::on_floor_of = nullptr;
     }
   }
 
@@ -666,6 +697,8 @@ void show_portals() {
       }
     }
 
+  walking::add_options();
+
   dialog::display();
   }
 
@@ -730,6 +763,21 @@ EX void kill(int id) {
   println(hlog, isize(to_remove), " connections and ", isize(to_erase_cell), " cells erased");
   }
 
+EX void erase_all_maps() {
+  println(hlog, "erase_all_maps called");
+  data[current].gd.storegame();
+  in = false;
+  for(int i=0; i<isize(data); i++) {
+    current = i;
+    ginf[gProduct] = data[i].gi;
+    data[i].gd.restoregame();
+    clearCellMemory();
+    }
+  intra_id.clear();
+  connections.clear();
+  data.clear();
+  }
+
 EX set<cell*> need_to_save;
 
 EX void prepare_need_to_save() {
@@ -765,8 +813,196 @@ auto hooks1 =
       arg::shift(); int i = arg::argi(); be_ratio_edge(i);
       })
   + arg::add3("-debug-portal", [] { arg::shift(); debug_portal = arg::argi(); });
-
-
 #endif
+EX }
+
+EX namespace walking {
+
+EX bool on;
+
+EX bool auto_eyelevel;
+
+EX int floor_dir = -1;
+EX cell *on_floor_of = nullptr;
+EX ld eye_level = 0.2174492;
+EX ld eye_angle = 0;
+EX ld eye_angle_scale = 1;
+
+int ticks_end, ticks_last;
+
+EX set<color_t> colors_of_floors;
+
+EX bool isFloor(cell *c) {
+  if(!isWall(c)) return false;
+  if(colors_of_floors.empty()) return true;
+  return colors_of_floors.count(c->landparam);
+  }
+
+EX void handle() {
+  if(!on) return;
+
+  if(floor_dir == -1 || on_floor_of != centerover) {
+    vector<int> choices;
+    for(int i=0; i<centerover->type; i++)
+      if(isFloor(centerover->cmove(i)))
+        choices.push_back(i);
+
+    if(sol && isize(choices) == 2) choices.pop_back();
+
+    if(isize(choices) == 1) {
+      on_floor_of = centerover;
+      floor_dir = choices[0];
+      }
+    else if(colors_of_floors.empty() && sn::in()) {
+      on_floor_of = centerover;
+      auto z = inverse(View) * C0;
+      switch(geometry) {
+         case gSol:
+           floor_dir = (z[2] > 0) ? 2 : 6;
+           return;
+         case gNIH:
+           floor_dir = (z[2] > 0) ? 5 : 4;
+           return;
+         case gSolN:
+           floor_dir = (z[2] > 0) ? 4 : 6;
+           return;
+         default: throw hr_exception("not solnihv");
+         }
+      }
+    else if(colors_of_floors.empty() && hyperbolic && bt::in()) {
+      auto z = bt::minkowski_to_bt(inverse(View) * C0);
+      on_floor_of = centerover;
+      floor_dir = z[2] > 0 ? bt::updir() : 0;
+      println(hlog, "set floor_dir to ", floor_dir);
+      }
+    else {
+      println(hlog, "there are ", isize(choices), " choices for floor_dir");
+      if(!on_floor_of) return;
+      }
+    }
+
+  struct face {
+    hyperpoint h0, hx, hy;
+    };
+
+  transmatrix ToOld = currentmap->relative_matrix(on_floor_of, centerover, C0);
+  auto& csh = currentmap->get_cellshape(on_floor_of);
+  face f;
+  f.h0 = ToOld * csh.faces_local[floor_dir][0];
+  f.hx = ToOld * csh.faces_local[floor_dir][1];
+  f.hy = ToOld * csh.faces_local[floor_dir][2];
+
+  auto find_nearest = [&] (const face& fac, hyperpoint at) {
+    if(sol) { at[2] = fac.h0[2]; return at; }
+    else if(hyperbolic && bt::in()) {
+      auto z = bt::minkowski_to_bt(at);
+      z[2] = bt::minkowski_to_bt(fac.h0)[2];
+      return bt::bt_to_minkowski(z);
+      }
+    else if(prod && bt::in()) {
+      auto dec = product_decompose(at);
+      hyperpoint dep = PIU( deparabolic13(dec.second) );
+      hyperpoint h = product_decompose(fac.h0).second;
+      h = PIU( deparabolic13(h) );
+      dep[0] = h[0];
+      return zshift(PIU(parabolic13(dep)), dec.first);
+      }
+    else {
+      transmatrix M = ray::mirrorize(currentmap->ray_iadj(on_floor_of, floor_dir));
+      M = ToOld * M * inverse(ToOld);
+      return mid(at, M * at);
+      }
+    };
+
+  hyperpoint at = tC0(inverse(View));
+  if(invalid_point(at)) {
+    println(hlog, "at is invalid!");
+    on = false;
+    return;
+    }
+
+  auto wallpt = find_nearest(f, at);
+
+  ld view_eps = 1e-5;
+
+  if(eye_angle) rotate_view(cspin(1, 2, -eye_angle * degree));
+  hyperpoint front = inverse(get_shift_view_of(ctangent(2, -view_eps), View)) * C0;
+  hyperpoint up = inverse(get_shift_view_of(ctangent(1, +view_eps), View)) * C0;
+
+  auto fwallpt = find_nearest(f, front);
+
+  transmatrix T = nonisotropic ? nisot::translate(wallpt, -1) : gpushxto0(wallpt);
+  hyperpoint dx = inverse_exp(shiftless(T * at));
+
+  transmatrix Tf = nonisotropic ? nisot::translate(fwallpt, -1) : gpushxto0(fwallpt);
+  hyperpoint dxf = inverse_exp(shiftless(Tf * front));
+
+  if(eye_level == -1) eye_level = hypot_d(3, dx);
+
+  auto smooth = [&] (hyperpoint h1, hyperpoint h2) {
+    if(ticks < ticks_end) {
+      ld last_t = ilerp(ticks_end-1000, ticks_end, ticks_last);
+      ld curr_t = ilerp(ticks_end-1000, ticks_end, ticks);
+      last_t = last_t * last_t * (3-2*last_t);
+      curr_t = curr_t * curr_t * (3-2*curr_t);
+      ld t = ilerp(last_t, 1, curr_t);
+      return lerp(h1, h2, t);
+      }
+    return h2;
+    };
+
+  auto oView = View;
+  set_view(
+    smooth(at, inverse(T) * direct_exp(dx / hypot_d(3, dx) * eye_level)),
+    smooth(front, inverse(Tf) * direct_exp(dxf / hypot_d(3, dxf) * eye_level)),
+    smooth(up, inverse(T) * direct_exp(dx / hypot_d(3, dx) * (eye_level + view_eps)))
+    );
+  if(eye_angle) rotate_view(cspin(1, 2, eye_angle * degree));
+  playermoved = false;
+
+  auto nat = tC0(inverse(View));
+  if(invalid_point(nat)) {
+    println(hlog, "at is invalid after fixing!");
+    View = oView;
+    return;
+    }
+
+  ticks_last = ticks;
+  }
+
+EX void add_options() {
+  dialog::addBoolItem("walking mode", on, 'w');
+  dialog::add_action([] {
+    on = !on;
+    if(on && auto_eyelevel) eye_level = -1;
+    floor_dir = -1;
+    on_floor_of = nullptr;
+    ticks_last = ticks;
+    ticks_end = ticks + 1000;
+    });
+  add_edit(eye_level);
+  add_edit(eye_angle);
+  }
+
+auto a = addHook(hooks_configfile, 100, [] {
+  param_b(auto_eyelevel, "auto_eyelevel")
+      -> editable("keep eye level when walking enabled", 'L');
+  param_f(eye_level, "eye_level")
+      -> editable(0, 5, .1, "walking eye level",
+      "Distance from the floor to the eye in the walking mode, in absolute units. In VR this is adjusted automatically.",
+      'e')
+      ->set_extra([] { add_edit(auto_eyelevel); });
+  param_f(eye_angle, "eye_angle")
+      -> editable(-90, 90, 15, "walking eye angle",
+      "0 = looking forward, 90 = looking upward. In VR this is adjusted automatically.",
+      'k')
+      ->set_extra([] { add_edit(eye_angle_scale); });
+  param_f(eye_angle_scale, "eye_angle_scale")
+      -> editable(-2, 0, 2, "eye angle scale",
+      "1 = the angle can be changed with keyboard or mouse movements, 0 = the angle is fixed",
+      'k');
+  })
+ + addHook(hooks_clearmemory, 40, [] { on_floor_of = nullptr; floor_dir = -1; });
+
 EX }
 }
