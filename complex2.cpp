@@ -101,7 +101,7 @@ EX namespace brownian {
     else if(c->wall == waStrandedBoat) c->wall = waNone;
     else if(c->wall == waFrozenLake) c->wall = waLake;
     else if(among(c->wall, waReptile, waGargoyleFloor) || cellUnstable(c)) c->wall = waChasm;
-    else if(among(c->wall, waNone, waDock, waBurningDock, waFloorA, waFloorB, waCavefloor, waDeadfloor, waMineMine, waMineUnknown, waMineOpen, waOpenGate, waClosePlate, waOpenPlate, waGargoyleBridge, waReptileBridge))
+    else if(among(c->wall, waNone, waDock, waBurningDock, waFloorA, waFloorB, waCavefloor, waDeadfloor, waMineMine, waMineUnknown, waMineOpen, waOpenGate, waClosePlate, waOpenPlate, waGargoyleBridge, waReptileBridge, waRaft, waRaftWarp))
       c->wall = waSea;
     else if(cellHalfvine(c)) destroyHalfvine(c, waNone, 4);
     }

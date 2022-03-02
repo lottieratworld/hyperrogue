@@ -3736,6 +3736,10 @@ EX int getfd(cell *c) {
     case laDual:
     case laBrownian:
       return 1;
+      
+    case laShipwreck:
+      if(isWateryOrBoat(c) || isRaft(c->wall)) return 1;
+      return 2;
     
     case laVariant:
       if(isWateryOrBoat(c)) return 1;

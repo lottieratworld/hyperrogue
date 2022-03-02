@@ -1734,9 +1734,9 @@ LAND( 0x008060, "Shipwreck Rocks", laShipwreck, ZERO | LF_SEA | LF_PURESEA, itSh
   "Unfortunately for you, the many Pirates, Vikings, and Ratlings here have already scavenged all the good treasure here. "
   "Some of the Pirates have brought their cannons, and the Ratlings have brought their best archers!"
   )
-  NATIVE(among(m, moPirate, moViking, moRatling, moRatlingBowman, moRatlingMage) ? 2 : among(m, moCShark, moAlbatross) ? 1 : 0)
-  #define LST {itPirate, itCoral, itFjord}
-  REQ(ITEMS_TOTAL(LST, variant_unlock_value()))
+  NATIVE(among(m, moRatlingBowman) ? 2 : among(m, moPirate, moRatling, moCShark, moAlbatross, moAcidBird) ? 1 : 0)
+  #define LST {itPirate, itCoral}
+  REQ(ITEMS_TOTAL(LST, variant_unlock_value()*2/3))
   #undef LST
 
 ITEM('/', 0x707070, "Lead Figurine", itShipwreck, IC_TREASURE, ZERO | IF_FIREPROOF, RESERVED, osNone,

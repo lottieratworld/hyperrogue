@@ -132,7 +132,7 @@ void celldrawer::setcolors() {
     else if(isWarpedType(c->land))
       fcol = 0x0000C0 + int((warptype(c)?30:-30) * sintick(600));
     else if(c->land == laShipwreck)
-      fcol = 0x007050;
+      fcol = 0x081080;
     else if(isRaft(c->wall))
       fcol = 0x0000A0;
     else
@@ -1193,16 +1193,11 @@ void celldrawer::set_land_floor(const shiftmatrix& Vf) {
       set_floor(cgi.shDesertFloor);
       break;
 
-    case laShipwreck:
-      set_floor(cgi.shDesertFloor);
-//      if(isRaft(c->wall)) set_floor(cgi.shFloor);
-      break;
-
     case laBull:
       set_floor(cgi.shButterflyFloor);
       break;
     
-    case laCaribbean: case laOcean: case laOceanWall: case laWhirlpool:
+    case laCaribbean: case laOcean: case laOceanWall: case laWhirlpool: case laShipwreck:
       set_floor(cgi.shCloudFloor);
       break;
     
