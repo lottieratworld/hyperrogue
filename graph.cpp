@@ -1084,171 +1084,258 @@ EX void drawPlayer(eMonster m, cell *where, const shiftmatrix& V, color_t col, d
     }
 
   if(mapeditor::drawplayer && !mapeditor::drawUserShape(V, mapeditor::sgPlayer, cs.charid, cs.skincolor, where)) {
-  
-    if(cs.charid >= 8) {
-      /* famililar */
-      if(!mmspatial && !footphase) {
+    switch(cs.charid) {
+      /* ratling */
+      case 10: case 11: {
+        ShadowV(V, cgi.shYeti);
         if(stop) return;
-        queuepoly(VALEGS, cgi.shWolfLegs, fc(150, cs.dresscolor, 4));   
-        }
-      else {
-        ShadowV(V, cgi.shWolfBody);
-        if(stop) return;
-        animallegs(VALEGS, moWolf, fc(500, cs.dresscolor, 4), footphase);
-        }
-      queuepoly(VABODY, cgi.shWolfBody, fc(0, cs.skincolor, 0));
-      queuepoly(VAHEAD, cgi.shFamiliarHead, fc(500, cs.haircolor, 2));
-      if(!shmup::on || shmup::curtime >= shmup::getPlayer()->nextshot) {
-        color_t col = items[itOrbDiscord] ? watercolor(0) : fc(314, cs.eyecolor, 3);
-        queuepoly(VAHEAD, cgi.shFamiliarEye, col);
-        queuepoly(VAHEAD * Mirror, cgi.shFamiliarEye, col);
-        }
 
-      if(knighted)
-        queuepoly(VABODY, cgi.shKnightCloak, darkena(cloakcolor(knighted), 1, 0xFF));
+        const transmatrix VBS = otherbodyparts(V, fc(0, cs.skincolor, 0), items[itOrbFish] ? moWaterElemental : moPlayer, footphase);
 
-      if(tortoise::seek())
-        tortoise::draw(VABODY, tortoise::seekbits, 4, 0);
-      }
-    else if(cs.charid >= 6) {
-      /* dog */
-      if(!mmspatial && !footphase) {
-        if(stop) return;
-        queuepoly(VABODY, cgi.shDogBody, fc(0, cs.skincolor, 0));
-        }
-      else {
-        ShadowV(V, cgi.shDogTorso);          
-        if(stop) return;
-        animallegs(VALEGS, moRunDog, fc(500, cs.dresscolor, 4), footphase);
-        queuepoly(VABODY, cgi.shDogTorso, fc(0, cs.skincolor, 0));
-        }
-      queuepoly(VAHEAD, cgi.shDogHead, fc(150, cs.haircolor, 2));
-
-      if(!shmup::on || shmup::curtime >= shmup::getPlayer()->nextshot) {
-        color_t col = items[itOrbDiscord] ? watercolor(0) : fc(314, cs.eyecolor, 3);
-        queuepoly(VAHEAD, cgi.shWolf1, col);
-        queuepoly(VAHEAD, cgi.shWolf2, col);
-        }
-
-      color_t colnose = items[itOrbDiscord] ? watercolor(0) : fc(314, 0xFF, 3);
-      queuepoly(VAHEAD, cgi.shWolf3, colnose);
-
-      if(knighted)
-        queuepoly(VABODY, cgi.shKnightCloak, darkena(cloakcolor(knighted), 1, 0xFF));
-
-      if(tortoise::seek())
-        tortoise::draw(VABODY, tortoise::seekbits, 4, 0);
-      }
-    else if(cs.charid >= 4) {
-      /* cat */
-      if(!mmspatial && !footphase) {
-        if(stop) return;
-        queuepoly(VALEGS, cgi.shCatLegs, fc(500, cs.dresscolor, 4));
-        }
-      else {
-        ShadowV(V, cgi.shCatBody);
-        if(stop) return;
-        animallegs(VALEGS, moRunDog, fc(500, cs.dresscolor, 4), footphase);
-        }
-      queuepoly(VABODY, cgi.shCatBody, fc(0, cs.skincolor, 0));
-      queuepoly(VAHEAD, cgi.shCatHead, fc(150, cs.haircolor, 2));
-      if(!shmup::on || shmup::curtime >= shmup::getPlayer()->nextshot) {
-        color_t col = items[itOrbDiscord] ? watercolor(0) : fc(314, cs.eyecolor, 3);
-        queuepoly(VAHEAD * xpush(.04), cgi.shWolf1, col);
-        queuepoly(VAHEAD * xpush(.04), cgi.shWolf2, col);
-        }
-
-      if(knighted)
-        queuepoly(VABODY, cgi.shKnightCloak, darkena(cloakcolor(knighted), 1, 0xFF));
-
-      if(tortoise::seek())
-        tortoise::draw(VABODY, tortoise::seekbits, 4, 0);
-      }
-    else {
-       /* human */
-      ShadowV(V, (cs.charid&1) ? cgi.shFemaleBody : cgi.shPBody);
-      if(stop) return;
-
-      const transmatrix VBS = otherbodyparts(V, fc(0, cs.skincolor, 0), items[itOrbFish] ? moWaterElemental : moPlayer, footphase);
-  
-  
-      queuepoly(VBODY * VBS, (cs.charid&1) ? cgi.shFemaleBody : cgi.shPBody, fc(0, cs.skincolor, 0));      
-  
-      if(cs.charid&1)
-        queuepoly(VBODY1 * VBS, cgi.shFemaleDress, fc(500, cs.dresscolor, 4));
-  
-      if(cs.charid == 2)
-        queuepoly(VBODY2 * VBS, cgi.shPrinceDress,  fc(400, cs.dresscolor, 5));
-      if(cs.charid == 3) 
-        queuepoly(VBODY2 * VBS, cgi.shPrincessDress,  fc(400, cs.dresscolor2, 5));
-        
-      if(items[itOrbSide3])
-        queuepoly(VBODY * VBS, (cs.charid&1) ? cgi.shFerocityF : cgi.shFerocityM, fc(0, cs.skincolor, 0));
-  
-      if(items[itOrbHorns]) {
-        queuepoly(VBODY * VBS, cgi.shBullHead, items[itOrbDiscord] ? watercolor(0) : 0xFF000030);
-        queuepoly(VBODY * VBS, cgi.shBullHorn, items[itOrbDiscord] ? watercolor(0) : 0xFF000040);
-        queuepoly(VBODY * VBS * Mirror, cgi.shBullHorn, items[itOrbDiscord] ? watercolor(0) : 0xFF000040);
-        }
-  
-      if(items[itOrbSide1] && !shmup::on)
-        queuepoly(VBODY * VBS * spin(-M_PI/24), cs.charid >= 2 ? cgi.shSabre : cgi.shPSword, fc(314, cs.swordcolor, 3)); // 3 not colored
-      
-      shiftmatrix VWPN = cs.lefthanded ? VBODY * VBS * Mirror : VBODY * VBS;
-      
-      if(peace::on) ;
-      else if(racing::on) {
-  #if CAP_RACING
-        if(racing::trophy[multi::cpid])
-          queuepoly(VWPN, cgi.shTrophy, racing::trophy[multi::cpid]);
-  #endif
-        }
-      else if(items[itOrbThorns])
-        queuepoly(VWPN, cgi.shHedgehogBladePlayer, items[itOrbDiscord] ? watercolor(0) : 0x00FF00FF);
-      else if(!shmup::on && items[itOrbDiscord])
-        queuepoly(VWPN, cs.charid >= 2 ? cgi.shSabre : cgi.shPSword, watercolor(0));
-      else if(items[itRevolver])
-        queuepoly(VWPN, cgi.shGunInHand, fc(314, cs.swordcolor, 3)); // 3 not colored
-      else if(items[itOrbSlaying]) {
-        queuepoly(VWPN, cgi.shFlailTrunk, fc(314, cs.swordcolor, 3));
-        queuepoly(VWPN, cgi.shHammerHead, fc(314, cs.swordcolor, 3));
-        }
-      else if(items[itCurseWeakness]) {
-        /* no weapon shown */
-        }
-      else if(!shmup::on)
-        queuepoly(VWPN, cs.charid >= 2 ? cgi.shSabre : cgi.shPSword, fc(314, cs.swordcolor, 3)); // 3 not colored
-      else if(shmup::curtime >= shmup::getPlayer()->nextshot)
-        queuepoly(VWPN, cgi.shPKnife, fc(314, cs.swordcolor, 3)); // 3 not colored
-      
-      if(items[itOrbBeauty]) {
-        if(cs.charid&1)
-          queuepoly(VHEAD1, cgi.shFlowerHair, darkena(iinf[itOrbBeauty].color, 0, 0xFF));
+        if(items[itOrbSide3])
+          queuepoly(VBODY * VBS, cgi.shFerocityM, fc(0, cs.skincolor, 0));
         else
-          queuepoly(VWPN, cgi.shFlowerHand, darkena(iinf[itOrbBeauty].color, 0, 0xFF));
+          queuepoly(VLEG, cgi.shRatTail, fc(150, cs.haircolor, 2));
+        queuepoly(VBODY * VBS, cgi.shYeti, fc(0, cs.skincolor, 0));
+
+        color_t eyecol = items[itOrbDiscord] ? watercolor(0) : fc(314, cs.eyecolor, 3);
+        color_t nosecol = items[itOrbDiscord] ? watercolor(0) : fc(314, 0x202020FF, 2);
+
+        if(GDIM == 2) {
+          queuepoly(VHEAD, cgi.shRatHead, fc(500, cs.skincolor, 1));
+          queuepoly(VHEAD, cgi.shWolf1, eyecol);
+          queuepoly(VHEAD, cgi.shWolf2, eyecol);
+          queuepoly(VHEAD, cgi.shWolf3, nosecol);
+          if(!(cs.charid&1) && !(where && where->land == laWildWest)) queuepoly(VHEAD1, cgi.shRatCape1, fc(400, cs.dresscolor, 5));
+          }
+#if MAXMDIM >= 4
+        else {
+          shiftmatrix V1 = V * zpush(cgi.AHEAD - zc(0.4) - zc(0.98) + cgi.HEAD);
+          queuepoly(V1, cgi.shRatHead, fc(500, cs.skincolor, 1));
+
+          queuepoly(V1, cgi.shRatEye1, eyecol);
+          queuepoly(V1, cgi.shRatEye2, eyecol);
+          queuepoly(V1, cgi.shRatEye3, nosecol);
+          if(!(cs.charid&1) && !(where && where->land == laWildWest)) queuepoly(V1, cgi.shRatCape1, fc(400, cs.dresscolor, 5));
+          }
+#endif
+        if(!(cs.charid&1))
+          queuepoly(VBODY1 * VBS, cgi.shRatCape2, fc(500, cs.dresscolor, 4));
+
+        shiftmatrix VWPN = cs.lefthanded ? VBODY * VBS * Mirror : VBODY * VBS;
+
+        if(peace::on) ;
+        else if(racing::on) {
+#if CAP_RACING
+          if(racing::trophy[multi::cpid])
+            queuepoly(VWPN, cgi.shTrophy, racing::trophy[multi::cpid]);
+#endif
+          }
+        else if(items[itOrbThorns])
+          queuepoly(VWPN, cgi.shHedgehogBladePlayer, items[itOrbDiscord] ? watercolor(0) : 0x00FF00FF);
+        else if(items[itRevolver])
+          queuepoly(VWPN, cgi.shGunInHand, fc(314, cs.swordcolor, 3));
+        else if(items[itOrbSlaying]) {
+          queuepoly(VWPN, cgi.shFlailTrunk, fc(314, cs.swordcolor, 3));
+          queuepoly(VWPN, cgi.shHammerHead, fc(314, cs.swordcolor, 3));
+          }
+        else if(!shmup::on || items[itCurseWeakness]) {
+          }
+        else if(shmup::curtime >= shmup::getPlayer()->nextshot)
+          queuepoly(VWPN, cgi.shPKnife, fc(314, cs.swordcolor, 3));
+
+        if(items[itOrbBeauty]) {
+          if(cs.charid&1)
+            queuepoly(VHEAD1, cgi.shFlowerHair, fc(530, darkena(iinf[itOrbBeauty].color, 0, 0xFF), 2));
+          else
+            queuepoly(VWPN, cgi.shFlowerHand, fc(314, darkena(iinf[itOrbBeauty].color, 0, 0xFF), 3));
+          }
+
+        if(where && where->land == laWildWest) {
+          queuepolyat(VHEAD1, cgi.shWestHat1, fc(530, darkena(cs.swordcolor >> 8, 1, 0XFF), 5), cgi.shRatCape1.prio);
+          queuepolyat(VHEAD2, cgi.shWestHat2, fc(590, darkena(cs.swordcolor >> 8, 0, 0XFF), 5), cgi.shRatCape1.prio + 1);
+          }
+
+        if(knighted)
+          queuepoly(VBODY * VBS, cgi.shKnightCloak, darkena(cloakcolor(knighted), 1, 0xFF));
+
+        if(tortoise::seek())
+          tortoise::draw(VBODY * VBS * ypush(-cgi.crossf*.25), tortoise::seekbits, 4, 0);
+
+        return;
         }
-      
-      if(where && where->land == laWildWest) {
-        queuepoly(VHEAD1, cgi.shWestHat1, darkena(cs.swordcolor, 1, 0XFF));
-        queuepoly(VHEAD2, cgi.shWestHat2, darkena(cs.swordcolor, 0, 0XFF));
+
+      /* famililar */
+      case 8: case 9: {
+        if(!mmspatial && !footphase) {
+          if(stop) return;
+          queuepoly(VALEGS, cgi.shWolfLegs, fc(150, cs.dresscolor, 4));   
+          }
+        else {
+          ShadowV(V, cgi.shWolfBody);
+          if(stop) return;
+          animallegs(VALEGS, moWolf, fc(500, cs.dresscolor, 4), footphase);
+          }
+        queuepoly(VABODY, cgi.shWolfBody, fc(0, cs.skincolor, 0));
+        queuepoly(VAHEAD, cgi.shFamiliarHead, fc(500, cs.haircolor, 2));
+        if(!shmup::on || shmup::curtime >= shmup::getPlayer()->nextshot) {
+          color_t col = items[itOrbDiscord] ? watercolor(0) : fc(314, cs.eyecolor, 3);
+          queuepoly(VAHEAD, cgi.shFamiliarEye, col);
+          queuepoly(VAHEAD * Mirror, cgi.shFamiliarEye, col);
+          }
+
+        if(knighted)
+          queuepoly(VABODY, cgi.shKnightCloak, darkena(cloakcolor(knighted), 1, 0xFF));
+
+        if(tortoise::seek())
+          tortoise::draw(VABODY, tortoise::seekbits, 4, 0);
+        return;
         }
-  
-      if(cheater && !autocheat) {
-        queuepoly(VHEAD1, (cs.charid&1) ? cgi.shGoatHead : cgi.shDemon, darkena(0xFFFF00, 0, 0xFF));
-        // queuepoly(V, shHood, darkena(0xFF00, 1, 0xFF));
+
+      /* dog */
+      case 6: case 7: {
+        if(!mmspatial && !footphase) {
+          if(stop) return;
+          queuepoly(VABODY, cgi.shDogBody, fc(0, cs.skincolor, 0));
+          }
+        else {
+          ShadowV(V, cgi.shDogTorso);          
+          if(stop) return;
+          animallegs(VALEGS, moRunDog, fc(500, cs.dresscolor, 4), footphase);
+          queuepoly(VABODY, cgi.shDogTorso, fc(0, cs.skincolor, 0));
+          }
+        queuepoly(VAHEAD, cgi.shDogHead, fc(150, cs.haircolor, 2));
+
+        if(!shmup::on || shmup::curtime >= shmup::getPlayer()->nextshot) {
+          color_t col = items[itOrbDiscord] ? watercolor(0) : fc(314, cs.eyecolor, 3);
+          queuepoly(VAHEAD, cgi.shWolf1, col);
+          queuepoly(VAHEAD, cgi.shWolf2, col);
+          }
+
+        color_t colnose = items[itOrbDiscord] ? watercolor(0) : fc(314, 0xFF, 3);
+        queuepoly(VAHEAD, cgi.shWolf3, colnose);
+
+        if(knighted)
+          queuepoly(VABODY, cgi.shKnightCloak, darkena(cloakcolor(knighted), 1, 0xFF));
+
+        if(tortoise::seek())
+          tortoise::draw(VABODY, tortoise::seekbits, 4, 0);
+        return;
         }
-      else {
-        queuepoly(VHEAD, cgi.shPFace, fc(500, cs.skincolor, 1));
-        queuepoly(VHEAD1, (cs.charid&1) ? cgi.shFemaleHair : cgi.shPHead, fc(150, cs.haircolor, 2));
-        }      
-      
-      humanoid_eyes(V, cs.eyecolor, cs.skincolor);
-  
-      if(knighted)
-        queuepoly(VBODY * VBS, cgi.shKnightCloak, darkena(cloakcolor(knighted), 1, 0xFF));
-  
-      if(tortoise::seek())
-        tortoise::draw(VBODY * VBS * ypush(-cgi.crossf*.25), tortoise::seekbits, 4, 0);
+
+      /* cat */
+      case 4: case 5: {
+        if(!mmspatial && !footphase) {
+          if(stop) return;
+          queuepoly(VALEGS, cgi.shCatLegs, fc(500, cs.dresscolor, 4));
+          }
+        else {
+          ShadowV(V, cgi.shCatBody);
+          if(stop) return;
+          animallegs(VALEGS, moRunDog, fc(500, cs.dresscolor, 4), footphase);
+          }
+        queuepoly(VABODY, cgi.shCatBody, fc(0, cs.skincolor, 0));
+        queuepoly(VAHEAD, cgi.shCatHead, fc(150, cs.haircolor, 2));
+        if(!shmup::on || shmup::curtime >= shmup::getPlayer()->nextshot) {
+          color_t col = items[itOrbDiscord] ? watercolor(0) : fc(314, cs.eyecolor, 3);
+          queuepoly(VAHEAD * xpush(.04), cgi.shWolf1, col);
+          queuepoly(VAHEAD * xpush(.04), cgi.shWolf2, col);
+          }
+
+        if(knighted)
+          queuepoly(VABODY, cgi.shKnightCloak, darkena(cloakcolor(knighted), 1, 0xFF));
+
+        if(tortoise::seek())
+          tortoise::draw(VABODY, tortoise::seekbits, 4, 0);
+        return;
+        }
+
+      /* human */
+      case 0: case 1: case 2: case 3: default: {
+        ShadowV(V, (cs.charid&1) ? cgi.shFemaleBody : cgi.shPBody);
+        if(stop) return;
+
+        const transmatrix VBS = otherbodyparts(V, fc(0, cs.skincolor, 0), items[itOrbFish] ? moWaterElemental : moPlayer, footphase);
+
+        queuepoly(VBODY * VBS, (cs.charid&1) ? cgi.shFemaleBody : cgi.shPBody, fc(0, cs.skincolor, 0));      
+
+        if(cs.charid&1)
+          queuepoly(VBODY1 * VBS, cgi.shFemaleDress, fc(500, cs.dresscolor, 4));
+
+        if(cs.charid == 2)
+          queuepoly(VBODY2 * VBS, cgi.shPrinceDress,  fc(400, cs.dresscolor, 5));
+        if(cs.charid == 3) 
+          queuepoly(VBODY2 * VBS, cgi.shPrincessDress,  fc(400, cs.dresscolor2, 5));
+
+        if(items[itOrbSide3])
+          queuepoly(VBODY * VBS, (cs.charid&1) ? cgi.shFerocityF : cgi.shFerocityM, fc(0, cs.skincolor, 0));
+
+        if(items[itOrbHorns]) {
+          queuepoly(VBODY * VBS, cgi.shBullHead, items[itOrbDiscord] ? watercolor(0) : 0xFF000030);
+          queuepoly(VBODY * VBS, cgi.shBullHorn, items[itOrbDiscord] ? watercolor(0) : 0xFF000040);
+          queuepoly(VBODY * VBS * Mirror, cgi.shBullHorn, items[itOrbDiscord] ? watercolor(0) : 0xFF000040);
+          }
+
+        if(items[itOrbSide1] && !shmup::on)
+          queuepoly(VBODY * VBS * spin(-M_PI/24), cs.charid >= 2 ? cgi.shSabre : cgi.shPSword, fc(314, cs.swordcolor, 3)); // 3 not colored
+
+        shiftmatrix VWPN = cs.lefthanded ? VBODY * VBS * Mirror : VBODY * VBS;
+
+        if(peace::on) ;
+        else if(racing::on) {
+#if CAP_RACING
+          if(racing::trophy[multi::cpid])
+            queuepoly(VWPN, cgi.shTrophy, racing::trophy[multi::cpid]);
+#endif
+          }
+        else if(items[itOrbThorns])
+          queuepoly(VWPN, cgi.shHedgehogBladePlayer, items[itOrbDiscord] ? watercolor(0) : 0x00FF00FF);
+        else if(!shmup::on && items[itOrbDiscord])
+          queuepoly(VWPN, cs.charid >= 2 ? cgi.shSabre : cgi.shPSword, watercolor(0));
+        else if(items[itRevolver])
+          queuepoly(VWPN, cgi.shGunInHand, fc(314, cs.swordcolor, 3)); // 3 not colored
+        else if(items[itOrbSlaying]) {
+          queuepoly(VWPN, cgi.shFlailTrunk, fc(314, cs.swordcolor, 3));
+          queuepoly(VWPN, cgi.shHammerHead, fc(314, cs.swordcolor, 3));
+          }
+        else if(items[itCurseWeakness]) {
+          /* no weapon shown */
+          }
+        else if(!shmup::on)
+          queuepoly(VWPN, cs.charid >= 2 ? cgi.shSabre : cgi.shPSword, fc(314, cs.swordcolor, 3)); // 3 not colored
+        else if(shmup::curtime >= shmup::getPlayer()->nextshot)
+          queuepoly(VWPN, cgi.shPKnife, fc(314, cs.swordcolor, 3)); // 3 not colored
+
+        if(items[itOrbBeauty]) {
+          if(cs.charid&1)
+            queuepoly(VHEAD1, cgi.shFlowerHair, fc(530, darkena(iinf[itOrbBeauty].color, 0, 0xFF), 2));
+          else
+            queuepoly(VWPN, cgi.shFlowerHand, fc(314, darkena(iinf[itOrbBeauty].color, 0, 0xFF), 3));
+          }
+
+        if(where && where->land == laWildWest) {
+          queuepoly(VHEAD1, cgi.shWestHat1, fc(530, darkena(cs.swordcolor >> 8, 1, 0XFF), 5));
+          queuepoly(VHEAD2, cgi.shWestHat2, fc(590, darkena(cs.swordcolor >> 8, 0, 0XFF), 5));
+          }
+
+        if(cheater && !autocheat) {
+          queuepoly(VHEAD1, (cs.charid&1) ? cgi.shGoatHead : cgi.shDemon, darkena(0xFFFF00, 0, 0xFF));
+          // queuepoly(V, shHood, darkena(0xFF00, 1, 0xFF));
+          }
+        else {
+          queuepoly(VHEAD, cgi.shPFace, fc(500, cs.skincolor, 1));
+          queuepoly(VHEAD1, (cs.charid&1) ? cgi.shFemaleHair : cgi.shPHead, fc(150, cs.haircolor, 2));
+          }      
+
+        humanoid_eyes(V, cs.eyecolor, cs.skincolor);
+
+        if(knighted)
+          queuepoly(VBODY * VBS, cgi.shKnightCloak, darkena(cloakcolor(knighted), 1, 0xFF));
+
+        if(tortoise::seek())
+          tortoise::draw(VBODY * VBS * ypush(-cgi.crossf*.25), tortoise::seekbits, 4, 0);
+        return;
+        }
       }
     }
   }
@@ -1452,7 +1539,7 @@ EX bool drawMonsterType(eMonster m, cell *where, const shiftmatrix& V1, color_t 
       queuepoly(VBODY * VBS, girl ? cgi.shFemaleBody : cgi.shPBody, facecolor);
   
       if(m == moPrincessArmed) 
-        queuepoly(VBODY * VBS * Mirror, vid.cs.charid < 2 ? cgi.shSabre : cgi.shPSword, 0xFFFFFFFF);
+        queuepoly(VBODY * VBS * Mirror, (vid.cs.charid < 2 || vid.cs.charid > 3) ? cgi.shSabre : cgi.shPSword, 0xFFFFFFFF);
       
       if((m == moFalsePrincess || m == moRoseBeauty) && where && where->cpdist == 1)
         queuepoly(VBODY * VBS, cgi.shPKnife, 0xFFFFFFFF);
@@ -1464,11 +1551,11 @@ EX bool drawMonsterType(eMonster m, cell *where, const shiftmatrix& V1, color_t 
   
       if(girl) {
         queuepoly(VBODY1 * VBS, cgi.shFemaleDress,  evil ? 0xC000C0FF : 0x00C000FF);
-        if(vid.cs.charid < 2) 
+        if(vid.cs.charid < 2 || vid.cs.charid > 3)
           queuepoly(VBODY2 * VBS, cgi.shPrincessDress, (evil ? 0xC040C0C0 : 0x8080FFC0) | UNTRANS);
         }
       else {
-        if(vid.cs.charid < 2) 
+        if(vid.cs.charid < 2 || vid.cs.charid > 3)
           queuepoly(VBODY1 * VBS, cgi.shPrinceDress,  evil ? 0x802080FF : 0x404040FF);
         }    
   
